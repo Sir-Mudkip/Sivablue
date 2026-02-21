@@ -93,6 +93,8 @@ EXCLUDED_PACKAGES=(
     fedora-chromium-config-gnome
     firefox
     firefox-langpacks
+    gnome-software
+    gnome-system-monitor
     gnome-extensions-app
     gnome-software-rpm-ostree
     podman-docker
