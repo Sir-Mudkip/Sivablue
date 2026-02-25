@@ -119,7 +119,8 @@ jobs:
         with:
           containerfiles: |
             ./Containerfile
-          target: ${{ matrix.target }}
+          build-args: |
+            VARIANT=${{ matrix.target }}
           image: ${{ env.IMAGE_NAME }}${{ matrix.suffix }}
           tags: ${{ env.DEFAULT_TAG }}
           labels: ${{ steps.metadata.outputs.labels }}
