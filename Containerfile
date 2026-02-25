@@ -39,6 +39,7 @@ ARG BASE_IMAGE="${BASE_IMAGE:-ghcr.io/ublue-os/silverblue-main:latest}"
 ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-main}"
 ARG FEDORA_VERSION="${FEDORA_VERSION:-43}"
 ARG KERNEL_VERSION="${KERNEL_VERSION:-6.18.12-200.fc43.x86_64}"
+ARG VARIANT="base"
 
 FROM scratch AS ctx
 
@@ -107,7 +108,6 @@ RUN --mount=type=cache,dst=/var/cache \
     ln -s libnvidia-ml.so.1 /usr/lib64/libnvidia-ml.so && \
     /ctx/build/50-clean.sh
 
-ARG VARIANT="base"
 FROM ${VARIANT} AS final
 
 ### LINTING
