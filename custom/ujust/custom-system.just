@@ -120,6 +120,94 @@ organise-gui:
 
     echo "Gnome Setup and Organised!"
 
+# Install Kali containers and shell aliases into user directory
+[group('System')]
+install-pentest-tools:
+    #!/usr/bin/env bash
+    source /usr/lib/ujust/ujust.sh
+    sudo podman pull ghcr.io/sir-mudkip/kali-base:latest
+    sudo podman pull registry.gitlab.com/snotra.uk/containers/metasploit-framework:latest
+    echo "alias kali='sudo podman run --rm -it --security-opt label=disable --network host --privileged -v $HOME:$HOME ghcr.io/sir-mudkip/kali-base:latest'" > "$HOME/.bashrc.d/kali.rc"
+    cat > "$HOME/.bashrc.d/msf.rc" << 'EOF'
+podman-msf() {
+	# if an argument is given to the function, use this as the name of the containers and persist the database container
+	if [ "$1" ]; then
+
+		# postgres
+		sudo podman run \
+			--security-opt label=disable \
+			--name msf_"$1" \
+			-p 127.0.0.1:5432:5432 \
+			-e POSTGRES_PASSWORD=postgres \
+			-e POSTGRES_USER=postgres \
+			-e POSTGRES_DB="$1" \
+			-d \
+			docker.io/library/postgres:alpine
+
+		# wait for db to fire up
+		sleep 3
+
+		# msfconsole
+		sudo podman run \
+			--security-opt label=disable \
+			--privileged \
+			--rm \
+			-it \
+			--network host \
+			-v $PWD:/run/host \
+			-v /tmp:/tmp \
+			-e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/"$1" \
+			-e MSF_UID=0 \
+			registry.gitlab.com/snotra.uk/containers/metasploit-framework
+
+	else
+
+		# postgres
+		sudo podman run \
+			--name msf \
+			--rm \
+			-p 127.0.0.1:5432:5432 \
+			-e POSTGRES_PASSWORD=postgres \
+			-e POSTGRES_USER=postgres \
+			-e POSTGRES_DB=msf \
+			-d \
+			docker.io/library/postgres:alpine
+
+		# wait for db to fire up
+		sleep 3
+
+		# msfconsole
+		sudo podman run \
+			--security-opt label=disable \
+			--privileged \
+			--rm \
+			-it \
+			--network host \
+			-v $PWD:/run/host \
+			-v /tmp:/tmp \
+			-e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/msf \
+			-e MSF_UID=0 \
+			registry.gitlab.com/snotra.uk/containers/metasploit-framework
+	fi
+}
+
+podman-msf-connect() {
+	# connect to existing db e.g podman-msf-connect customer1
+	sudo podman run \
+		--security-opt label=disable \
+		--rm \
+		-it \
+		--network host \
+		--privileged \
+		-v /tmp:/tmp \
+		-v $PWD:/run/host \
+		-v /media/$USER/data:/media/$USER/data \
+		-e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/"$1" \
+		-e MSF_UID=0 \
+		registry.gitlab.com/snotra.uk/containers/metasploit-framework
+}
+EOF
+
 # Run a system benchmark (requires stress-ng from Homebrew)
 [group('System')]
 benchmark:

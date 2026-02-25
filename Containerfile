@@ -1,7 +1,7 @@
 ###############################################################################
 # PROJECT NAME CONFIGURATION
 ###############################################################################
-# Name: ubluke
+# Name: sivablue
 #
 # IMPORTANT: Change "finpilot" above to your desired project name.
 # This name should be used consistently throughout the repository in:
@@ -106,6 +106,9 @@ RUN --mount=type=cache,dst=/var/cache \
     rm -f /usr/share/vulkan/icd.d/nouveau_icd.*.json && \
     ln -s libnvidia-ml.so.1 /usr/lib64/libnvidia-ml.so && \
     /ctx/build/50-clean.sh
+
+ARG VARIANT="base"
+FROM ${VARIANT} AS final
 
 ### LINTING
 ## Verify final image and contents are correct.

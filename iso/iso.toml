@@ -8,8 +8,8 @@
 contents = """
 %post
 # After installation, switch to the custom image from this repository
-# IMPORTANT: Update this URL to match your repository (ghcr.io/sir-mudkip/ubluke:stable)
-bootc switch --mutate-in-place --transport registry ghcr.io/sir-mudkip/ubluke:stable
+# IMPORTANT: Update this URL to match your repository (ghcr.io/sir-mudkip/sivablue:stable)
+bootc switch --mutate-in-place --transport registry ghcr.io/sir-mudkip/sivablue:stable
 %end
 """
 

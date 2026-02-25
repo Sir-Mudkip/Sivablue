@@ -1,6 +1,6 @@
-# What is uBluke?
+# What is sivablue?
 
-Good question... uBluke is a smaller and more simple version of Bluefin OS which aims to keep tools to a bare minimum and focus on making containers.
+Good question... sivablue is a smaller and more simple version of Bluefin OS which aims to keep tools to a bare minimum and focus on making containers.
 
 So far I'd consider this in Beta and right now there is only support for Nvidia. AMD Support coming soon!
 

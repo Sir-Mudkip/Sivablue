@@ -38,6 +38,7 @@ FEDORA_PACKAGES=(
     git-credential-libsecret
     gnome-tweaks
     gocryptfs
+    gnome-extensions-app
     igt-gpu-tools
     iwd
     just
@@ -95,7 +96,6 @@ EXCLUDED_PACKAGES=(
     firefox-langpacks
     gnome-software
     gnome-system-monitor
-    gnome-extensions-app
     gnome-software-rpm-ostree
     podman-docker
 )
