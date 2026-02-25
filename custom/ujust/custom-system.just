@@ -61,10 +61,6 @@ setup-gnome:
     # unpin apps from dock
     dconf write /org/gnome/shell/favorite-apps "['Terminal']"
 
-    # browser launch shortcut
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/www "['<Control><Alt>w']"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/home "['<Super>e']"
-
     # shortcuts for ptyxis and keepass
     dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/']"
     dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name "'Ptyxis'"
@@ -79,134 +75,23 @@ setup-gnome:
 
     # Add minimise button to apps
     gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
-
-[group('System')]
-organise-gui:
-    #!/usr/bin/env bash	
-    echo "Organizing apps into folders"
-    # Create folder structure
-    dconf write /org/gnome/desktop/app-folders/folder-children "['Internet', 'Utilities', 'Graphics', 'System', 'Development', 'Media']"
-
-    # Internet folder
-    dconf write /org/gnome/desktop/app-folders/folders/Internet/name "'Internet'"
-    dconf write /org/gnome/desktop/app-folders/folders/Internet/apps "['net.waterfox.waterfox.desktop', 'org.mozilla.Thunderbird.desktop', 'org.signal.Signal.desktop', 'org.qbittorrent.qBittorrent.desktop']"
-
-    # Utilities folder
-    dconf write /org/gnome/desktop/app-folders/folders/Utilities/name "'Utilities'"
-    dconf write /org/gnome/desktop/app-folders/folders/Utilities/apps "['org.gnome.Calculator.desktop', 'org.gnome.Calendar.desktop', 'org.gnome.Characters.desktop', 'org.gnome.Contacts.desktop', 'org.gnome.DejaDup.desktop', 'org.gnome.FileRoller.desktop', 'org.gnome.Maps.desktop', 'org.gnome.Papers.desktop', 'org.gnome.SimpleScan.desktop', 'org.gnome.baobab.desktop', 'org.gnome.clocks.desktop', 'org.gnome.font-viewer.desktop']"
-
-    # Graphics folder
-    dconf write /org/gnome/desktop/app-folders/folders/Graphics/name "'Graphics'"
-    dconf write /org/gnome/desktop/app-folders/folders/Graphics/apps "['com.github.PintaProject.Pinta.desktop', 'org.gnome.Loupe.desktop', 'page.codeberg.Imaginer.Refine.desktop', 'be.alexandervanhee.gradia.desktop']"
-
-    # Media folder
-    dconf write /org/gnome/desktop/app-folders/folders/Media/name "'Media'"
-    dconf write /org/gnome/desktop/app-folders/folders/Media/apps "['com.github.rafostar.Clapper.desktop']"
-
-    # System folder
-    dconf write /org/gnome/desktop/app-folders/folders/System/name "'System'"
-    dconf write /org/gnome/desktop/app-folders/folders/System/apps "['org.gnome.Connections.desktop', 'org.gnome.Firmware.desktop', 'com.github.tchx84.Flatseal.desktop', 'com.mattjakeman.ExtensionManager.desktop', 'io.github.flattool.Warehouse.desktop', 'io.github.flattool.Ignition.desktop', 'io.gitlab.adhami3310.Impression.desktop', 'io.github.fabrialberio.pinapp.desktop', 'ca.desrt.dconf-editor.desktop', 'org.kde.kleopatra.desktop', 'com.ranfdev.Distrobox.desktop']"
-
-    # Development folder
-    dconf write /org/gnome/desktop/app-folders/folders/Development/name "'Development'"
-    dconf write /org/gnome/desktop/app-folders/folders/Development/apps "['com.sublimetext.three.desktop', 'me.iepure.devtoolbox.desktop', 'org.virt_manager.virt-viewer.desktop', 'io.github.kolunmi.Bazaar.desktop']"
-
-    echo "Done! Apps organized into folders."
-
-    # Make apps appear on first page
-    echo "Ensuring apps appear on the first page"
-    # Force layout order so folders + KeePassXC + Terminal land on page 1
-    dconf write /org/gnome/shell/app-picker-layout "[{'Internet': <{'position': <0>}>, 'Utilities': <{'position': <1>}>, 'Graphics': <{'position': <2>}>, 'Media': <{'position': <3>}>, 'System': <{'position': <4>}>, 'Development': <{'position': <5>}>, 'org.keepassxc.KeePassXC.desktop': <{'position': <6>}>, 'Terminal': <{'position': <7>}>}]"
-
-    echo "Gnome Setup and Organised!"
-
+    
+	# Configure neovim
+	mkdir ~/.config/nvim/
+    git clone https://github.com/Sir-Mudkip/nvim.git ~/.config/nvim/
+    
 # Install Kali containers and shell aliases into user directory
 [group('System')]
 install-pentest-tools:
     #!/usr/bin/env bash
     source /usr/lib/ujust/ujust.sh
+    echo "Installing Kali and Metasploit... be patient this may take a while"
     sudo podman pull ghcr.io/sir-mudkip/kali-base:latest
     sudo podman pull registry.gitlab.com/snotra.uk/containers/metasploit-framework:latest
-    echo "alias kali='sudo podman run --rm -it --security-opt label=disable --network host --privileged -v $HOME:$HOME ghcr.io/sir-mudkip/kali-base:latest'" > "$HOME/.bashrc.d/kali.rc"
-    cat > "$HOME/.bashrc.d/msf.rc" << 'EOF'
-podman-msf() {
-	# if an argument is given to the function, use this as the name of the containers and persist the database container
-	if [ "$1" ]; then
-
-		# postgres
-		sudo podman run \
-			--security-opt label=disable \
-			--name msf_"$1" \
-			-p 127.0.0.1:5432:5432 \
-			-e POSTGRES_PASSWORD=postgres \
-			-e POSTGRES_USER=postgres \
-			-e POSTGRES_DB="$1" \
-			-d \
-			docker.io/library/postgres:alpine
-
-		# wait for db to fire up
-		sleep 3
-
-		# msfconsole
-		sudo podman run \
-			--security-opt label=disable \
-			--privileged \
-			--rm \
-			-it \
-			--network host \
-			-v $PWD:/run/host \
-			-v /tmp:/tmp \
-			-e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/"$1" \
-			-e MSF_UID=0 \
-			registry.gitlab.com/snotra.uk/containers/metasploit-framework
-
-	else
-
-		# postgres
-		sudo podman run \
-			--name msf \
-			--rm \
-			-p 127.0.0.1:5432:5432 \
-			-e POSTGRES_PASSWORD=postgres \
-			-e POSTGRES_USER=postgres \
-			-e POSTGRES_DB=msf \
-			-d \
-			docker.io/library/postgres:alpine
-
-		# wait for db to fire up
-		sleep 3
-
-		# msfconsole
-		sudo podman run \
-			--security-opt label=disable \
-			--privileged \
-			--rm \
-			-it \
-			--network host \
-			-v $PWD:/run/host \
-			-v /tmp:/tmp \
-			-e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/msf \
-			-e MSF_UID=0 \
-			registry.gitlab.com/snotra.uk/containers/metasploit-framework
-	fi
-}
-
-podman-msf-connect() {
-	# connect to existing db e.g podman-msf-connect customer1
-	sudo podman run \
-		--security-opt label=disable \
-		--rm \
-		-it \
-		--network host \
-		--privileged \
-		-v /tmp:/tmp \
-		-v $PWD:/run/host \
-		-v /media/$USER/data:/media/$USER/data \
-		-e DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/"$1" \
-		-e MSF_UID=0 \
-		registry.gitlab.com/snotra.uk/containers/metasploit-framework
-}
-EOF
+    cp /usr/share/image-extras/kali.rc $HOME/.bashrc.d/
+    cp /usr/share/image-extras/kali.rc $HOME/.bashrc.d/
+    source $HOME/.bashrc
+    echo "Kali and Metasploit are now properly aliased. Check .bashrc.d/ for aliases"
 
 # Run a system benchmark (requires stress-ng from Homebrew)
 [group('System')]

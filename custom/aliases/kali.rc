@@ -1,0 +1,10 @@
+kali() {
+    sudo podman run \
+    -it \
+    --rm \
+    --security-opt label=disable \
+    --network host \
+    --privileged \
+    -v $HOME:/run/host \
+    ghcr.io/sir-mudkip/kali-base:latest
+}
