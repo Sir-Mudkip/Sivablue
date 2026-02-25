@@ -3,4 +3,5 @@ _build_*
 output
 _build-*/**
 create-iso.sh
+create-nvidia-iso.sh
 .claude/
