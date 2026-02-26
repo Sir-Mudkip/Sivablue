@@ -62,22 +62,28 @@ setup-gnome:
     dconf write /org/gnome/shell/favorite-apps "['Terminal']"
 
     # shortcuts for ptyxis and keepass
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/']"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/']"
     dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name "'Ptyxis'"
     dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/binding "'<Control><Alt>t'"
     dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/command "'/usr/bin/ptyxis --new-window'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/name "'KeePass'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/binding "'<Control><Alt>k'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/command "'flatpak run org.keepassxc.KeePassXC'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/name "'KeePass'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/binding "'<Control><Alt>k'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/command "'flatpak run org.keepassxc.KeePassXC'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/name "'Gradia'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/binding "'F10'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/command "'flatpak run be.alexandervanhee.gradia --screenshot'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/name "'Mission Center'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/binding "'<Control><Shift>Escape'"
+    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/command "'flatpak run io.missioncenter.MissionCenter'"
 
     # window switcher
     dconf write /org/gnome/desktop/wm/keybindings/switch-windows "['<Alt>Tab']"
 
     # Add minimise button to apps
     gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
-    
-	# Configure neovim
-	mkdir ~/.config/nvim/
+
+    # Configure neovim
+    mkdir -p ~/.config/nvim/
     git clone https://github.com/Sir-Mudkip/nvim.git ~/.config/nvim/
     
 # Install Kali containers and shell aliases into user directory

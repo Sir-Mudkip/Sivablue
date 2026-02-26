@@ -20,14 +20,14 @@ cp /ctx/custom/flatpaks/*.preinstall /etc/flatpak/preinstall.d/
 
 # Copy Aliases to standard location
 mkdir -p /usr/share/ublue-os/aliases
-cp /etc/custom/aliases/*.rc /usr/share/ublue-os/aliases
+cp /ctx/custom/aliases/*.rc /usr/share/ublue-os/aliases
 
 # Copy Motd / Setup
 mkdir -p /etc/profile.d/
 mkdir -p /etc/misc.d/
 cp /ctx/custom/motd/welcome.sh /etc/profile.d/
 cp /ctx/custom/motd/welcome.md /etc/misc.d/
-chmod 644 /etc/misc.d/ript-welcome.md
+chmod 644 /etc/misc.d/welcome.md
 chmod 755 /etc/profile.d/welcome.sh
 
 # Copy Backgrounds
