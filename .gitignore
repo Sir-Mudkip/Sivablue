@@ -5,3 +5,4 @@ _build-*/**
 create-iso.sh
 create-nvidia-iso.sh
 .claude/
+CLAUDE.md

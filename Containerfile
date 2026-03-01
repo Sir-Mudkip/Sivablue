@@ -38,7 +38,7 @@
 ARG BASE_IMAGE="${BASE_IMAGE:-ghcr.io/ublue-os/silverblue-main:latest}"
 ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-main}"
 ARG FEDORA_VERSION="${FEDORA_VERSION:-43}"
-ARG KERNEL_VERSION="${KERNEL_VERSION:-6.18.12-200.fc43.x86_64}"
+ARG ARCHITECTURE="${KERNEL_VERSION:-x86_64}"
 ARG VARIANT="base"
 
 FROM scratch AS ctx
@@ -48,7 +48,7 @@ COPY custom /custom
 COPY system /system
 
 # Import nvidia akmods prior to setting base stage
-FROM ghcr.io/ublue-os/akmods-nvidia-open:${KERNEL_FLAVOR}-${FEDORA_VERSION}-${KERNEL_VERSION} AS nvidia-akmods
+FROM ghcr.io/ublue-os/akmods-nvidia-open:${KERNEL_FLAVOR}-${FEDORA_VERSION}-${ARCHITECTURE} AS nvidia-akmods
 
 # Copy from OCI containers to distinct subdirectories to avoid conflicts
 # Base Image - GNOME included
