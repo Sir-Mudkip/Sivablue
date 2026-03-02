@@ -6,6 +6,8 @@
 
 [customizations.installer.kickstart]
 contents = """
+network --hostname=Sivablue
+
 %post
 # After installation, switch to the custom image from this repository
 # IMPORTANT: Update this URL to match your repository (ghcr.io/sir-mudkip/sivablue:stable)

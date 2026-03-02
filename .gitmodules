@@ -1,0 +1,8 @@
+[submodule "system/usr/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com"]
+	path = system/usr/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com
+	url = https://github.com/micheleg/dash-to-dock.git
+	branch = master
+[submodule "system/usr/share/gnome-shell/extensions/logomenu@aryan_k"]
+	path = system/usr/share/gnome-shell/extensions/logomenu@aryan_k
+	url = https://github.com/ublue-os/Logomenu.git
+	branch = main

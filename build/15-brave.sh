@@ -1,4 +1,6 @@
-set -oue pipefail
+#!/usr/bin/bash
+
+set -eoux pipefail
 
 echo "Installing Brave"
 

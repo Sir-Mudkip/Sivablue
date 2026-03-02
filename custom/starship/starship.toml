@@ -1,0 +1,95 @@
+format = """\
+\\[$username@$hostname\\] $directory$git_branch$git_status$python$java$nodejs$rust$golang$ruby$php$dotnet$lua$perl$kotlin$swift$zig$elixir$erlang$haskell$julia$nim$ocaml$scala$dart$deno$bun$cmake$meson
+$character"""
+
+[username]
+show_always = true
+format = "[$user](bold green)"
+
+[hostname]
+ssh_only = false
+format = "[$hostname](bold green)"
+
+[directory]
+style = "bold #5f87ff"
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+# Language modules - Nerd Font logos only
+[python]
+symbol = "\ue73c "
+format = "[${symbol}${virtualenv}](yellow)"
+
+[java]
+symbol = "\ue738 "
+
+[nodejs]
+symbol = "\ue719 "
+
+[rust]
+symbol = "\ue7a8 "
+
+[golang]
+symbol = "\ue724 "
+
+[ruby]
+symbol = "\ue739 "
+
+[php]
+symbol = "\ue73d "
+
+[dotnet]
+symbol = "\ue7b2 "
+
+[lua]
+symbol = "\ue826 "
+
+[perl]
+symbol = "\ue769 "
+
+[kotlin]
+symbol = "\ue81b "
+
+[swift]
+symbol = "\ue755 "
+
+[zig]
+symbol = "\ue8ef "
+
+[elixir]
+symbol = "\ue7cd "
+
+[erlang]
+symbol = "\ue7b1 "
+
+[haskell]
+symbol = "\ue777 "
+
+[julia]
+symbol = "\ue80d "
+
+[nim]
+symbol = "\ue841 "
+
+[ocaml]
+symbol = "\ue84e "
+
+[scala]
+symbol = "\ue737 "
+
+[dart]
+symbol = "\ue798 "
+
+[deno]
+symbol = "\ue798 "
+
+[bun]
+symbol = "\ue719 "
+
+[cmake]
+symbol = "△ "
+
+[meson]
+symbol = "⬡ "

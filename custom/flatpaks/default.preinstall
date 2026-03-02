@@ -7,9 +7,6 @@
 [Flatpak Preinstall net.waterfox.waterfox]
 Branch=stable
 
-[Flatpak Preinstall org.mozilla.Thunderbird]
-Branch=stable
-
 # GNOME Core Applications
 [Flatpak Preinstall org.gnome.Calculator]
 Branch=stable
@@ -132,4 +129,8 @@ Branch=stable
 
 # Signal
 [Flatpak Preinstall org.signal.Signal]
+Branch=stable
+
+# Podman Desktop
+[Flatpak Preinstall io.podman_desktop.PodmanDesktop]
 Branch=stable

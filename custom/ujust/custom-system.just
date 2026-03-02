@@ -58,9 +58,6 @@ setup-gnome:
     dconf write /org/gnome/settings-daemon/plugins/color/night-light-enabled true
     dconf write /org/gnome/settings-daemon/plugins/color/night-light-schedule-automatic true
 
-    # unpin apps from dock
-    dconf write /org/gnome/shell/favorite-apps "['Terminal']"
-
     # shortcuts for ptyxis and keepass
     dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/']"
     dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name "'Ptyxis'"
@@ -82,6 +79,12 @@ setup-gnome:
     # Add minimise button to apps
     gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
 
+    # Pin apps to dock
+    dconf write /org/gnome/shell/favorite-apps "['org.gnome.Ptyxis.desktop', 'net.waterfox.waterfox.desktop', 'org.gnome.Nautilus.desktop', 'io.github.kolunmi.Bazaar.desktop']"
+
+    # Reset app grid to alphabetical order
+    gsettings reset org.gnome.shell app-picker-layout
+
     # Configure neovim
     mkdir -p ~/.config/nvim/
     git clone https://github.com/Sir-Mudkip/nvim.git ~/.config/nvim/
@@ -94,8 +97,8 @@ install-pentest-tools:
     echo "Installing Kali and Metasploit... be patient this may take a while"
     sudo podman pull ghcr.io/sir-mudkip/kali-base:latest
     sudo podman pull registry.gitlab.com/snotra.uk/containers/metasploit-framework:latest
-    cp /usr/share/image-extras/kali.rc $HOME/.bashrc.d/
-    cp /usr/share/image-extras/kali.rc $HOME/.bashrc.d/
+    cp /usr/share/ublue-os/aliases/kali.rc $HOME/.bashrc.d/
+    cp /usr/share/ublue-os/aliases/msf.rc $HOME/.bashrc.d/
     source $HOME/.bashrc
     echo "Kali and Metasploit are now properly aliased. Check .bashrc.d/ for aliases"
 

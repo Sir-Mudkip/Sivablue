@@ -25,4 +25,4 @@ install-flatpak APP_ID:
 # Example: Install VSCode via Flatpak
 [group('Apps')]
 install-vscode:
-    ujust install-flatpak com.visualstudio.code
+    ujust install-flatpak com.vscodium.codium

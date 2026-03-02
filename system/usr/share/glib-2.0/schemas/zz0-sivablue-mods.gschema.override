@@ -1,0 +1,55 @@
+[org.gnome.shell]
+enabled-extensions = ['dash-to-dock@micxgx.gmail.com', 'logomenu@aryan_k', 'tailscale@joaophi.github.com']
+
+[org.gnome.desktop.background]                                                                                                                                                                                                                                                           
+picture-uri='file:///usr/share/backgrounds/sivablue/siva-blue.png'
+                
+[org.gnome.desktop.screensaver]
+picture-uri='file:///usr/share/backgrounds/sivablue/siva-blue.png'
+
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+gtk-theme='Adwaita-dark'
+
+[org/gnome/desktop/wm/preferences]
+button-layout='appmenu:minimize,maximize,close'
+
+[org.gnome.desktop.sound]
+event-sounds=false
+
+[org.gnome.desktop.input-sources]                                                                                                                                                                                                                                                        
+sources=[('xkb', 'gb')]
+
+[org.gnome.shell.extensions.dash-to-dock]
+dock-fixed=true
+force-straight-corner=false
+custom-theme-shrink=true
+disable-overview-on-startup=true
+transparency-mode='DYNAMIC'
+animation-time=0.15
+background-color='rgb(40,40,40)'
+background-opacity=0.8
+custom-background-color=true
+customize-alphas=true
+max-alpha=0.8
+min-alpha=0.5
+running-indicator-style='DOTS'
+apply-custom-theme=true
+
+[org.gnome.shell.extensions.Logo-menu]
+symbolic-icon=true
+use-custom-icon=true
+custom-icon-path='/usr/share/backgrounds/sivablue/siva-mini-logo.png'
+menu-button-terminal='/usr/bin/ptyxis --new-window'
+menu-button-system-monitor='flatpak run io.missioncenter.MissionCenter'
+menu-button-extensions-app='flatpak run com.mattjakeman.ExtensionManager'
+menu-button-software-center='flatpak run io.github.kolunmi.Bazaar'
+show-activities-button=true
+show-lockscreen=false
+show-power-option=false
+show-gamemode=false
+hide-forcequit=true
+show-boxbuddy=true
+
+[org.gnome.Ptyxis.Profile]
+palette='google'

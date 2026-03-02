@@ -38,7 +38,6 @@ FEDORA_PACKAGES=(
     git-credential-libsecret
     gnome-tweaks
     gocryptfs
-    gnome-extensions-app
     igt-gpu-tools
     iwd
     just
@@ -77,6 +76,9 @@ dnf -y install "${FEDORA_PACKAGES[@]}"
 
 # Example using COPR with isolated pattern:
 # copr_install_isolated "ublue-os/staging" package-name
+
+echo "Installing Starship prompt"
+copr_install_isolated "atim/starship" starship
 
 echo "Back patching of flatpak"
 dnf5 install -y dbus-x11
