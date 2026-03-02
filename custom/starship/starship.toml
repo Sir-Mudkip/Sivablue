@@ -11,7 +11,7 @@ ssh_only = false
 format = "[$hostname](bold green)"
 
 [directory]
-style = "bold #5f87ff"
+style = "bold #99c0ff"
 
 [character]
 success_symbol = "[❯](bold green)"

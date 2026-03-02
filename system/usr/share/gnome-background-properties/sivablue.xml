@@ -2,15 +2,15 @@
 <!DOCTYPE wallpapers SYSTEM "gnome-wp-list.dtd">
 <wallpapers>
   <wallpaper deleted="false">
-    <name>Siva Blue</name>
-    <filename>/usr/share/backgrounds/sivablue/siva-blue.png</filename>
+    <name>Siva</name>
+    <filename>/usr/share/backgrounds/sivablue/siva-red.jpg</filename>
     <filename-dark>/usr/share/backgrounds/sivablue/siva-red.jpg</filename-dark>
     <options>zoom</options>
   </wallpaper>
   <wallpaper deleted="false">
-    <name>Siva Red</name>
-    <filename>/usr/share/backgrounds/sivablue/siva-red.jpg</filename>
-    <filename-dark>/usr/share/backgrounds/sivablue/siva-red.jpg</filename-dark>
+    <name>Siva Blue</name>
+    <filename>/usr/share/backgrounds/sivablue/siva-blue.png</filename>
+    <filename-dark>/usr/share/backgrounds/sivablue/siva-blue.png</filename-dark>
     <options>zoom</options>
   </wallpaper>
 </wallpapers>

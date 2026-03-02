@@ -1,0 +1,19 @@
+# Relocatable schemas are located here in dconf
+# Some Gnome extensions don't ship gschema XML, so their settings also need to go in dconf
+
+[org/gnome/shell/extensions/Logo-menu]
+symbolic-icon=true
+use-custom-icon=true
+menu-button-icon-size=20
+custom-icon-path='/usr/share/backgrounds/sivablue/siva-mini-logo.svg'
+menu-button-terminal='/usr/bin/ptyxis --new-window'
+menu-button-system-monitor='flatpak run io.missioncenter.MissionCenter'
+menu-button-extensions-app='flatpak run com.mattjakeman.ExtensionManager'
+menu-button-software-center='flatpak run io.github.kolunmi.Bazaar'
+show-activities-button=true
+show-lockscreen=false
+show-power-option=false
+show-gamemode=false
+hide-forcequit=true
+show-distroshelf=true
+

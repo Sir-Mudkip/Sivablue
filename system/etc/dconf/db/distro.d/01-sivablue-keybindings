@@ -1,0 +1,22 @@
+# Relocatable schemas for custom keybindings
+# These cannot be set via gschema overrides
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='<Control><Alt>t'
+command='/usr/bin/ptyxis --new-window'
+name='Ptyxis'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1]
+binding='<Control><Alt>k'
+command='flatpak run org.keepassxc.KeePassXC'
+name='KeePass'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2]
+binding='<Super>F10'
+command='flatpak run be.alexandervanhee.gradia --screenshot'
+name='Gradia'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3]
+binding='<Control><Shift>Escape'
+command='flatpak run io.missioncenter.MissionCenter'
+name='Mission Center'

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="547.51691"
+   height="523.1377"
+   viewBox="0 0 547.51691 523.1377"
+   sodipodi:docname="siva-mini-logo.svg"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#000000"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="0.98444444"
+     inkscape:cx="26.918736"
+     inkscape:cy="272.74266"
+     inkscape:window-width="1854"
+     inkscape:window-height="1043"
+     inkscape:window-x="66"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g1"
+     transform="translate(-187.92325,-22.347626)">
+    <ellipse
+       style="fill:#ff1a1a;fill-opacity:1"
+       id="path3"
+       cx="461.6817"
+       cy="283.91647"
+       rx="273.75845"
+       ry="261.56885" />
+    <path
+       style="fill:#000000"
+       d="m 463.13649,508.83314 -0.70478,-0.70478 v -47.62817 -47.62816 l 23.75513,-23.45517 23.75513,-23.45517 14.49487,-13.95954 14.49487,-13.95953 47.63659,-47.29047 47.6365,-47.29046 h 1.1135 1.1134 v 47.75 47.75 l -21.2517,20.95973 -21.2517,20.95974 -39.5,39.01761 -39.50004,39.0176 -25.54522,25.31078 -25.54521,25.31077 z M 287.43171,383.21099 V 332.9603 l 51.5,-51.4889 51.5,-51.4889 v 50.61863 50.61863 l -50.64363,51.12096 -50.64364,51.12097 h -0.85636 -0.85637 z m 175,-34.25791 v -50.98083 l 34.75,-34.82617 34.75,-34.82618 -34.75,-34.2831 -34.75,-34.2831 V 109.02436 58.295026 l 0.94053,0.333334 0.94054,0.333333 63.80946,63.057737 63.80946,63.05774 22,21.66428 22,21.66428 -36.5,36.24518 -36.5,36.24519 -36.99999,36.49926 -37,36.49927 -13.25,13.01964 -13.25,13.01963 z m -160,-137.75079 15.5,-15.21623 69.32002,-68.51218 69.32001,-68.512187 0.92999,-0.333333 0.92998,-0.333334 v 50.815224 50.81524 l -33.75,33.22064 -33.75,33.22065 -52,0.0259 -52,0.0259 z"
+       id="path1"
+       inkscape:label="path1" />
+  </g>
+</svg>

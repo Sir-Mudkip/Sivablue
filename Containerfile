@@ -53,7 +53,8 @@ FROM ghcr.io/ublue-os/akmods-nvidia-open:${KERNEL_FLAVOR}-${FEDORA_VERSION}-${AR
 # Copy from OCI containers to distinct subdirectories to avoid conflicts
 # Base Image - GNOME included
 FROM ghcr.io/ublue-os/silverblue-main:latest AS base
-ARG IMAGE_NAME="${IMAGE_NAME:-base}"
+ARG VARIANT
+ARG FEDORA_VERSION
 
 # Make /opt immutable
 RUN rm /opt && mkdir /opt
@@ -78,7 +79,7 @@ RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
-    /ctx/build/00-base-build.sh
+    /ctx/build/01-base-build.sh
 
 # Nvidia Stage
 FROM base AS nvidia

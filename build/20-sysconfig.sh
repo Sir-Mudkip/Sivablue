@@ -40,8 +40,11 @@ systemctl mask geoclue.service
 echo "Enabling Flatpak"
 systemctl enable flatpak-preinstall.service
 
-echo "Setting hostname"
-echo "Sivablue" > /etc/hostname
+echo "Enabling dconf update on boot"
+systemctl enable dconf-update.service
+
+echo "Enabling first-boot hostname service"
+systemctl enable set-hostname.service
 
 echo "Enabling Tailscale"
 systemctl enable --now tailscaled

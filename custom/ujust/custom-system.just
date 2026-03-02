@@ -32,10 +32,6 @@ setup-gnome:
     dconf write /org/gnome/desktop/wm/keybindings/switch-to-workspace-5 "['<Super>5']"
     dconf write /org/gnome/desktop/wm/keybindings/switch-to-workspace-6 "['<Super>6']"
 
-    # dark mode slate
-    dconf write /org/gnome/desktop/interface/accent-color "'slate'"
-    dconf write /org/gnome/desktop/interface/color-scheme "'prefer-dark'"
-
     # fixed number of workspaces at 6
     dconf write /org/gnome/mutter/dynamic-workspaces false
     dconf write /org/gnome/desktop/wm/preferences/num-workspaces 6
@@ -57,30 +53,6 @@ setup-gnome:
     # night light
     dconf write /org/gnome/settings-daemon/plugins/color/night-light-enabled true
     dconf write /org/gnome/settings-daemon/plugins/color/night-light-schedule-automatic true
-
-    # shortcuts for ptyxis and keepass
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings "['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/']"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/name "'Ptyxis'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/binding "'<Control><Alt>t'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/command "'/usr/bin/ptyxis --new-window'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/name "'KeePass'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/binding "'<Control><Alt>k'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/command "'flatpak run org.keepassxc.KeePassXC'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/name "'Gradia'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/binding "'F10'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/command "'flatpak run be.alexandervanhee.gradia --screenshot'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/name "'Mission Center'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/binding "'<Control><Shift>Escape'"
-    dconf write /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/command "'flatpak run io.missioncenter.MissionCenter'"
-
-    # window switcher
-    dconf write /org/gnome/desktop/wm/keybindings/switch-windows "['<Alt>Tab']"
-
-    # Add minimise button to apps
-    gsettings set org.gnome.desktop.wm.preferences button-layout ':minimize,maximize,close'
-
-    # Pin apps to dock
-    dconf write /org/gnome/shell/favorite-apps "['org.gnome.Ptyxis.desktop', 'net.waterfox.waterfox.desktop', 'org.gnome.Nautilus.desktop', 'io.github.kolunmi.Bazaar.desktop']"
 
     # Reset app grid to alphabetical order
     gsettings reset org.gnome.shell app-picker-layout

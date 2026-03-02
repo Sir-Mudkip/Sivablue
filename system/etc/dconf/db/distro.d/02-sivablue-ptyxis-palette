@@ -1,0 +1,5 @@
+# Relocatable schema for Ptyxis terminal profile
+# Profile palette cannot be set via gschema overrides
+
+[org/gnome/Ptyxis/Profiles/2871e8027773ae74d6c87a5f659bbc74]
+palette='google'

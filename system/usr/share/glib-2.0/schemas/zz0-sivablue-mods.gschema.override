@@ -1,24 +1,81 @@
+#-------------- SHELL --------------#
+
 [org.gnome.shell]
-enabled-extensions = ['dash-to-dock@micxgx.gmail.com', 'logomenu@aryan_k', 'tailscale@joaophi.github.com']
+favorite-apps=['org.gnome.Ptyxis.desktop', 'net.waterfox.waterfox.desktop', 'org.gnome.Nautilus.desktop', 'io.github.kolunmi.Bazaar.desktop']
+enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'logomenu@aryan_k', 'tailscale@joaophi.github.com']
 
-[org.gnome.desktop.background]                                                                                                                                                                                                                                                           
-picture-uri='file:///usr/share/backgrounds/sivablue/siva-blue.png'
-                
+# Disable Super+N app switching so workspace shortcuts work
+[org.gnome.shell.keybindings]
+switch-to-application-1=['']
+switch-to-application-2=['']
+switch-to-application-3=['']
+switch-to-application-4=['']
+switch-to-application-5=['']
+switch-to-application-6=['']
+switch-to-application-7=['']
+switch-to-application-8=['']
+switch-to-application-9=['']
+
+#-------------- DESKTOP --------------#
+
+[org.gnome.desktop.background]
+picture-uri='file:///usr/share/backgrounds/sivablue/siva-red.jpg'
+picture-uri-dark='file:///usr/share/backgrounds/sivablue/siva-red.jpg'
+picture-options='zoom'
+
 [org.gnome.desktop.screensaver]
-picture-uri='file:///usr/share/backgrounds/sivablue/siva-blue.png'
+picture-uri='file:///usr/share/backgrounds/sivablue/siva-red.jpg'
+picture-uri-dark='file:///usr/share/backgrounds/sivablue/siva-red.jpg'
+lock-enabled=false
 
-[org/gnome/desktop/interface]
+[org.gnome.desktop.interface]
 color-scheme='prefer-dark'
 gtk-theme='Adwaita-dark'
-
-[org/gnome/desktop/wm/preferences]
-button-layout='appmenu:minimize,maximize,close'
+accent-color='slate'
 
 [org.gnome.desktop.sound]
 event-sounds=false
 
-[org.gnome.desktop.input-sources]                                                                                                                                                                                                                                                        
+[org.gnome.desktop.input-sources]
 sources=[('xkb', 'gb')]
+
+#-------------- WINDOW MANAGER --------------#
+
+[org.gnome.desktop.wm.preferences]
+button-layout=':minimize,maximize,close'
+num-workspaces=6
+
+[org.gnome.desktop.wm.keybindings]
+switch-windows=['<Alt>Tab']
+switch-to-workspace-1=['<Super>1']
+switch-to-workspace-2=['<Super>2']
+switch-to-workspace-3=['<Super>3']
+switch-to-workspace-4=['<Super>4']
+switch-to-workspace-5=['<Super>5']
+switch-to-workspace-6=['<Super>6']
+move-to-workspace-1=['<Super><Shift>1']
+move-to-workspace-2=['<Super><Shift>2']
+move-to-workspace-3=['<Super><Shift>3']
+move-to-workspace-4=['<Super><Shift>4']
+move-to-workspace-5=['<Super><Shift>5']
+move-to-workspace-6=['<Super><Shift>6']
+
+[org.gnome.mutter]
+dynamic-workspaces=false
+
+#-------------- NIGHT LIGHT --------------#
+
+[org.gnome.settings-daemon.plugins.color]
+night-light-enabled=true
+night-light-schedule-automatic=true
+
+#-------------- CUSTOM KEYBINDINGS (path list) --------------#
+# The actual keybinding definitions are relocatable schemas in /etc/dconf/db/distro.d/
+
+[org.gnome.settings-daemon.plugins.media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/']
+
+#-------------- EXTENSIONS --------------#
 
 [org.gnome.shell.extensions.dash-to-dock]
 dock-fixed=true
@@ -39,7 +96,8 @@ apply-custom-theme=true
 [org.gnome.shell.extensions.Logo-menu]
 symbolic-icon=true
 use-custom-icon=true
-custom-icon-path='/usr/share/backgrounds/sivablue/siva-mini-logo.png'
+menu-button-icon-size=20
+custom-icon-path='/usr/share/backgrounds/sivablue/siva-mini-logo.svg'
 menu-button-terminal='/usr/bin/ptyxis --new-window'
 menu-button-system-monitor='flatpak run io.missioncenter.MissionCenter'
 menu-button-extensions-app='flatpak run com.mattjakeman.ExtensionManager'
@@ -51,5 +109,13 @@ show-gamemode=false
 hide-forcequit=true
 show-boxbuddy=true
 
-[org.gnome.Ptyxis.Profile]
-palette='google'
+#-------------- PTYXIS --------------#
+# Profile palette is a relocatable schema, set in /etc/dconf/db/distro.d/
+
+[org.gnome.Ptyxis]
+interface-style='system'
+restore-session=false
+restore-window-size=false
+audible-bell=false
+profile-uuids=['2871e8027773ae74d6c87a5f659bbc74']
+default-profile-uuid='2871e8027773ae74d6c87a5f659bbc74'

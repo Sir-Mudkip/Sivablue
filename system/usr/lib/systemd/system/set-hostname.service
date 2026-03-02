@@ -1,0 +1,11 @@
+[Unit]
+Description=Set hostname on first boot
+ConditionPathExists=!/etc/.hostname-set
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/hostnamectl set-hostname Sivablue
+ExecStartPost=/usr/bin/touch /etc/.hostname-set
+
+[Install]
+WantedBy=multi-user.target
