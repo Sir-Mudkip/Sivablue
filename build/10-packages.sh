@@ -36,6 +36,7 @@ FEDORA_PACKAGES=(
     fastfetch
     gcc
     git-credential-libsecret
+    glow
     gnome-tweaks
     gocryptfs
     igt-gpu-tools
@@ -80,6 +81,9 @@ dnf -y install "${FEDORA_PACKAGES[@]}"
 echo "Installing Starship prompt"
 copr_install_isolated "atim/starship" starship
 
+echo "Installing Nerd Fonts"
+copr_install_isolated "che/nerd-fonts" "nerd-fonts"
+
 echo "Back patching of flatpak"
 dnf5 install -y dbus-x11
 dnf -y copr enable ublue-os/flatpak-test
@@ -97,6 +101,8 @@ EXCLUDED_PACKAGES=(
     firefox
     firefox-langpacks
     gnome-software
+    gnome-extensions-app
+    gnome-shell-extension-background-logo
     gnome-system-monitor
     gnome-software-rpm-ostree
     podman-docker
@@ -114,4 +120,4 @@ fi
 
 echo "::endgroup::"
 
-echo "Custom build complete!"
+echo "All packages installed"
