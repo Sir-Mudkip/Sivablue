@@ -1,17 +1,19 @@
 format = """\
-\\[$username@$hostname\\] $directory$git_branch$git_status$python$java$nodejs$rust$golang$ruby$php$dotnet$lua$perl$kotlin$swift$zig$elixir$erlang$haskell$julia$nim$ocaml$scala$dart$deno$bun$cmake$meson
+\\[$username[@](bold fg:111)$hostname\\]-\\[$directory\\] $git_branch$git_status$python$java$nodejs$rust$golang$ruby$php$dotnet$lua$perl$kotlin$swift$zig$elixir$erlang$haskell$julia$nim$ocaml$scala$dart$deno$bun$cmake$meson$aws$azure
 $character"""
 
 [username]
 show_always = true
-format = "[$user](bold green)"
+format = "[$user](bold fg:111)"
+style_root = 'bold red'
 
 [hostname]
 ssh_only = false
-format = "[$hostname](bold green)"
+format = "[$hostname](bold fg:111)"
 
 [directory]
-style = "bold #99c0ff"
+style = "bold fg:34"
+format = "[$path]($style)[$read_only]($read_only_style)"
 
 [character]
 success_symbol = "[❯](bold green)"
@@ -93,3 +95,18 @@ symbol = "△ "
 
 [meson]
 symbol = "⬡ "
+
+# AWS
+[aws]
+format = 'on [$symbol$profile $region]($style) '
+style = 'bold yellow'
+symbol = '☁️'
+[aws.profile_aliases]
+Enterprise_Naming_Scheme-voidstars = 'void**'
+
+# Azure:
+[azure]
+disabled = false
+format = 'on [$symbol($subscription)]($style) '
+symbol = '󰠅 '
+style = 'bold fg:81'
