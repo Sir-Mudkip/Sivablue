@@ -15,7 +15,7 @@ brew "azure-cli"      # Azure CLI
 # Programming languages and tools
 brew "go"             # Go programming language
 brew "node"           # Node.js
-#brew "python@3.12"    # Python
+brew "python@3.12"    # Python
 brew "lua"            # Lua
 # brew "rust"           # Rust programming language
 
