@@ -102,7 +102,7 @@ RUN --mount=type=cache,dst=/var/cache \
     --mount=type=bind,from=nvidia-akmods,src=/rpms,dst=/tmp/akmods-rpms \
     --mount=type=tmpfs,dst=/tmp \
     --mount=type=secret,id=GITHUB_TOKEN \
-    IMAGE_NAME="${BASE_IMAGE_NAME}" AKMODNV_PATH="/tmp/akmods-rpms" MULTILIB=0 /tmp/akmods-rpms/ublue-os/nvidia-install.sh
+    IMAGE_NAME="${BASE_IMAGE_NAME}" AKMODNV_PATH="/tmp/akmods-rpms" MULTILIB=0 /tmp/akmods-rpms/ublue-os/nvidia-install.sh && \
     rm -f /usr/share/vulkan/icd.d/nouveau_icd.*.json && \
     ln -s libnvidia-ml.so.1 /usr/lib64/libnvidia-ml.so && \
     /ctx/build/50-clean.sh
