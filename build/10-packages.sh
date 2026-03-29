@@ -39,6 +39,8 @@ FEDORA_PACKAGES=(
     glow
     gnome-tweaks
     gocryptfs
+    hashcat
+    hashcat-utils
     igt-gpu-tools
     iwd
     just
@@ -60,7 +62,6 @@ FEDORA_PACKAGES=(
     qemu-system-x86-core
     qemu-user-binfmt
     qemu-user-static
-    ripgrep
     setools-console
     syncthing
     udica
