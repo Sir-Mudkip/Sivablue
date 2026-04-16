@@ -49,4 +49,21 @@ systemctl enable set-hostname.service
 echo "Enabling Tailscale"
 systemctl enable --now tailscaled
 
+echo "Enabling Tailscale operator setup"
+systemctl enable tailscale-operator.service
+
+echo "Enabling auto-groups"
+systemctl enable auto-groups.service
+
+echo "Enable Libvirt"
+systemctl enable libvirtd
+
+echo "Enable workarounds"
+systemctl enable swtpm-workaround.service
+systemctl enable libvirt-workaround.service
+systemctl enable flatpak-nuke-fedora.service
+
+# Load swtpm SELinux policy modules so restorecon can label /usr/bin/swtpm correctly at boot
+semodule -i /usr/share/selinux/packages/swtpm.pp /usr/share/selinux/packages/swtpm_libvirt.pp /usr/share/selinux/packages/swtpm_svirt.pp
+
 echo "::endgroup::"

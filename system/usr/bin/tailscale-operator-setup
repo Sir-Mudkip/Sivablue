@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+SETUP_VER=1
+SETUP_VER_FILE="/etc/sivablue/tailscale-operator"
+SETUP_VER_RAN=$(cat "$SETUP_VER_FILE" 2>/dev/null || echo "0")
+
+mkdir -p /etc/sivablue
+
+if [[ -f $SETUP_VER_FILE && "$SETUP_VER" = "$SETUP_VER_RAN" ]]; then
+  echo "Tailscale operator setup has already run. Exiting..."
+  exit 0
+fi
+
+set -euo pipefail
+
+WHEEL_USER=$(getent group wheel | cut -d ":" -f 4 | cut -d "," -f 1)
+
+if [[ -n "$WHEEL_USER" ]]; then
+  echo "Setting Tailscale operator to $WHEEL_USER"
+  tailscale set --operator="$WHEEL_USER"
+  echo "$SETUP_VER" >"$SETUP_VER_FILE"
+else
+  echo "No wheel user found, skipping"
+  exit 1
+fi

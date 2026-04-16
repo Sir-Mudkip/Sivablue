@@ -2,11 +2,11 @@
 
 echo "::group:: ===$(basename "$0")==="
 
-set -xeuo pipefail
+set -euox pipefail
 
 # Constants
 IMAGE_PRETTY_NAME="Sivablue"
-IMAGE_LIKE="fedora"
+IMAGE_LIKE="Silverblue"
 IMAGE_VENDOR="sir-mudkip"
 IMAGE_TAG="stable"
 BASE_IMAGE_NAME="silverblue"

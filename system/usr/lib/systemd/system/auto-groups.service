@@ -1,0 +1,9 @@
+[Unit]
+Description=Add wheel members to libvirt group
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/auto-groups
+
+[Install]
+WantedBy=default.target

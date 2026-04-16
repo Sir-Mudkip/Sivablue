@@ -57,23 +57,6 @@ setup-gnome:
     # Reset app grid to alphabetical order
     gsettings reset org.gnome.shell app-picker-layout
 
-    # Configure neovim
-    mkdir -p ~/.config/nvim/
-    git clone https://github.com/Sir-Mudkip/nvim.git ~/.config/nvim/
-    
-# Install Kali containers and shell aliases into user directory
-[group('System')]
-install-pentest-tools:
-    #!/usr/bin/env bash
-    source /usr/lib/ujust/ujust.sh
-    echo "Installing Kali and Metasploit... be patient this may take a while"
-    sudo podman pull ghcr.io/sir-mudkip/kali-base:latest
-    sudo podman pull registry.gitlab.com/snotra.uk/containers/metasploit-framework:latest
-    cp /usr/share/ublue-os/aliases/kali.rc $HOME/.bashrc.d/
-    cp /usr/share/ublue-os/aliases/msf.rc $HOME/.bashrc.d/
-    source $HOME/.bashrc
-    echo "Kali and Metasploit are now properly aliased. Check .bashrc.d/ for aliases"
-
 # Run a system benchmark (requires stress-ng from Homebrew)
 [group('System')]
 benchmark:
@@ -98,45 +81,6 @@ benchmark:
     stress-ng --matrix 0 -t 1m --times
     popd > /dev/null
 
-# Configure libvirt groups for development
-[group('System')]
-configure-dev-groups:
-    #!/usr/bin/pkexec bash
-    CURRENT_USER="{{ `id -un` }}"
-    echo "Adding $CURRENT_USER to docker and libvirt groups..."
-
-    # Ensure groups exist in /etc/group
-    for group in libvirt; do
-        if ! grep -q "^$group:" /etc/group; then
-            echo "Adding $group to /etc/group"
-            grep "^$group:" /usr/lib/group | tee -a /etc/group > /dev/null
-        fi
-        usermod -aG $group $CURRENT_USER
-    done
-
-    echo "Groups configured. Log out and back in for changes to take effect."
-
-# Example toggle command with user choice
-[group('System')]
-toggle-example-feature:
-    #!/usr/bin/bash
-    source /usr/lib/ujust/ujust.sh
-    echo "This is an example toggle command."
-    echo "Current status: [check your status here]"
-    OPTION=$(Choose "Enable" "Disable" "Cancel")
-    case "$OPTION" in
-        "Enable")
-            echo "Enabling feature..."
-            # Add your enable logic here
-            ;;
-        "Disable")
-            echo "Disabling feature..."
-            # Add your disable logic here
-            ;;
-        "Cancel")
-            echo "No changes made."
-            ;;
-    esac
 
 # Clean up container images and volumes
 [group('Maintenance')]

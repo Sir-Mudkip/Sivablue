@@ -1,0 +1,12 @@
+[Unit]
+Description=Set Tailscale operator to first wheel user
+After=tailscaled.service
+Requires=tailscaled.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tailscale-operator-setup
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -29,7 +29,6 @@ echo "::group:: Install Packages"
 
 FEDORA_PACKAGES=(
     adwaita-fonts-all
-    bash-color-prompt
     bootc
     ddcutil
     edk2-ovmf
@@ -39,8 +38,6 @@ FEDORA_PACKAGES=(
     glow
     gnome-tweaks
     gocryptfs
-    hashcat
-    hashcat-utils
     igt-gpu-tools
     iwd
     just
@@ -62,7 +59,9 @@ FEDORA_PACKAGES=(
     qemu-system-x86-core
     qemu-user-binfmt
     qemu-user-static
+    ripgrep
     setools-console
+    swtpm-tool
     syncthing
     udica
     virt-manager
@@ -96,17 +95,23 @@ dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test install flatp
 
 # Packages to exclude - common to all versions
 EXCLUDED_PACKAGES=(
+    dnf-data
+    dracut-config-rescue
     fedora-bookmarks
     fedora-chromium-config
     fedora-chromium-config-gnome
     firefox
     firefox-langpacks
-    gnome-software
     gnome-extensions-app
     gnome-shell-extension-background-logo
-    gnome-system-monitor
+    gnome-software
     gnome-software-rpm-ostree
+    gnome-system-monitor
+    iptables-services
+    iptables-utils
+    PackageKit-command-not-found
     podman-docker
+    rsyslog
 )
 
 # Remove excluded packages if they are installed

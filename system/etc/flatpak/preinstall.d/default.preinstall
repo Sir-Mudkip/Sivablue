@@ -123,10 +123,6 @@ IsRuntime=true
 Branch=3.22
 IsRuntime=true
 
-# Password Manager
-[Flatpak Preinstall org.keepassxc.KeePassXC]
-Branch=stable
-
 # Signal
 [Flatpak Preinstall org.signal.Signal]
 Branch=stable

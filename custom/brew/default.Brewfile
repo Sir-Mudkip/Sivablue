@@ -7,12 +7,11 @@
 #brew "bat"        # cat with syntax highlighting
 #brew "eza"        # Modern replacement for ls
 #brew "fd"         # Simple, fast alternative to find
-brew "rg"         # ripgrep - faster grep
 
 # Development tools
 brew "gh"         # GitHub CLI
-brew "git"        # Git version control
-brew "neovim"     # Neovim without GUI icon
+#brew "git"        # Git version control
+brew "neovim"
 
 # Shell enhancements  
 #brew "starship"   # Cross-shell prompt
