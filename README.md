@@ -10,13 +10,12 @@ I am also keen to allow this image to be installed as a VM or on baremetal as a 
 
 Simple setup to have things configured right away:
 
+- ujust get-dotfiles
 - ujust setup-gnome
 - ujust install-clipboard-indicator
-- ujust install-brew-tools
-- ujust configure-nvidia (OPTIONAL, but this is an nvidia image so why not?)
-- ujust organise-gui (OPTIONAL)
+- ujust configure-nvidia (OPTIONAL if not using Nvidia Flavour)
 
-The more I work on this the more I will add, streamline, change, and everything else. Please see below for the rest of the finpilot docs which i used to build this image.
+If you would prefer to not insteall my dotfiles, then feel free to look at the brewfiles available in the repository, and install what you deem appropriate for your workflow
 
 # finpilot
 

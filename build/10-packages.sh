@@ -29,7 +29,6 @@ echo "::group:: Install Packages"
 
 FEDORA_PACKAGES=(
     adwaita-fonts-all
-    bootc
     ddcutil
     edk2-ovmf
     fastfetch
@@ -40,15 +39,12 @@ FEDORA_PACKAGES=(
     gocryptfs
     igt-gpu-tools
     iwd
-    just
     libvirt
     libvirt-nss
     lm_sensors
     make
-    mesa-libGLU
     podman-compose
     podman-machine
-    pulseaudio-utils
     python3-pip
     qemu
     qemu-char-spice
@@ -61,14 +57,12 @@ FEDORA_PACKAGES=(
     qemu-user-static
     ripgrep
     setools-console
-    swtpm-tool
+    swtpm-tools
     syncthing
     udica
     virt-manager
     virt-v2v
     virt-viewer
-    wireguard-tools
-    wl-clipboard
 )
 
 # Install all Fedora packages (bulk - safe from COPR injection)
@@ -77,9 +71,6 @@ dnf -y install "${FEDORA_PACKAGES[@]}"
 
 # Example using COPR with isolated pattern:
 # copr_install_isolated "ublue-os/staging" package-name
-
-echo "Installing Starship prompt"
-copr_install_isolated "atim/starship" starship
 
 echo "Installing Nerd Fonts"
 copr_install_isolated "che/nerd-fonts" "nerd-fonts"
@@ -124,6 +115,7 @@ if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
     fi
 fi
 
+echo "All packages installed"
+
 echo "::endgroup::"
 
-echo "All packages installed"

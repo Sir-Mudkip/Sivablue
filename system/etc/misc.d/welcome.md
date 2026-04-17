@@ -1,14 +1,15 @@
-# Welcome to the Sivablue!
+#  Welcome to the Sivablue!
 
-If you're new here, then please consider running the following to get setup:
+Consider running the following to get setup:
 
-- ujust install-brew-tools
-- ujust setup-gnome
-- ujust configure-nvidia (if on nvidia image)
-
-You can also run the following if you need it!
-
-- ujust install-clipboard-indicator
+|  Command                         |  Description                                                             |
+|-----------------------------------|---------------------------------------------------------------------------|
+| ujust get-dotfiles                | Pulls the dotfiles from the creator's github (Recommended)                |
+| ujust setup-gnome                 | Configures the gnome environment slightly for extra windows               |
+| ujust install-clipboard-indicator | Installs the gnome clipboard indicator extension                          |
+| ujust pull-seclists               | Pulls seclists and unzips Rockyou. Found in the toolkit directory         |
+| ujust configure-nvidia            | To set the kernel arguments for Nvidia's drivers (Nvidia Flavour Only)    |
+| ujust pull-hashcat                | Pulls a hashcat distrobox from the creator's github (Nvidia Flavour Only) |
 
 Hide this message with:
 - touch ~/.hushlogin

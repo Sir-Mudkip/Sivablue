@@ -6,6 +6,32 @@
 ## These are simplified examples adapted from Bluefin
 
 [group('System')]
+get-dotfiles:
+    #!/usr/bin/env bash
+    source /usr/lib/ujust/ujust.sh
+    git clone https://github.com/Sir-Mudkip/dotfiles $HOME/dotfiles
+    echo "To install these dotfiles, simply run \`./dotfiles/install.sh\`" | glow
+
+[group('System')]
+pull-hashcat:
+    #!/usr/bin/env bash
+    source /usr/lib/ujust/ujust.sh
+    distrobox create --nvidia --image ghcr.io/sir-mudkip/hashcat-distrobox:latest -Y --name hashcat-cuda
+    export PATH="$HOME/.local/bin:$PATH"
+    echo "To use hashcat like a local device, run the following commands in order:"
+    echo "\`distrobox enter hashcat-cuda\`" | glow
+    echo "\`distrobox-export --bin /usr/bin/hashcat\`" | glow
+
+[group('System')]
+pull-seclists:
+    #!/usr/bin/env bash
+    source /usr/lib/ujust/ujust.sh
+    mkdir -p $HOME/toolkit/
+    git clone --depth 1 https://github.com/danielmiessler/SecLists.git $HOME/toolkit/seclists
+    tar -xzvf $HOME/toolkit/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz -C $HOME/toolkit/seclists/Passwords/Leaked-Databases/
+    echo "Seclists and Rockyou are ready to be used"
+
+[group('System')]
 install-clipboard-indicator:
     #!/usr/bin/env bash
     source /usr/lib/ujust/ujust.sh

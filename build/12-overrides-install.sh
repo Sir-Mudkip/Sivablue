@@ -13,3 +13,5 @@ rpm --erase --nodeps kernel-devel
 # Wallpaper Configs
 rm /usr/share/glib-2.0/schemas/gschemas.compiled
 glib-compile-schemas /usr/share/glib-2.0/schemas
+
+echo "::endgroup::"
