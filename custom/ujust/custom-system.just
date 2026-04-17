@@ -107,7 +107,6 @@ benchmark:
     stress-ng --matrix 0 -t 1m --times
     popd > /dev/null
 
-
 # Clean up container images and volumes
 [group('Maintenance')]
 clean-containers:
