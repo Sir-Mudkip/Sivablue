@@ -12,10 +12,9 @@ Simple setup to have things configured right away:
 
 - ujust get-dotfiles
 - ujust setup-gnome
-- ujust install-clipboard-indicator
 - ujust configure-nvidia (OPTIONAL if not using Nvidia Flavour)
 
-If you would prefer to not insteall my dotfiles, then feel free to look at the brewfiles available in the repository, and install what you deem appropriate for your workflow
+If you would prefer to not install my dotfiles, then feel free to look at the brewfiles available in the repository, and install what you deem appropriate for your workflow
 
 # finpilot
 
