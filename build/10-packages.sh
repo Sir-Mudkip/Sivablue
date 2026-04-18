@@ -75,6 +75,9 @@ dnf -y install "${FEDORA_PACKAGES[@]}"
 echo "Installing Nerd Fonts"
 copr_install_isolated "che/nerd-fonts" "nerd-fonts"
 
+echo "Installing uupd"
+copr_install_isolated "ublue-os/packages" "uupd"
+
 echo "Back patching of flatpak"
 dnf5 install -y dbus-x11
 dnf -y copr enable ublue-os/flatpak-test
