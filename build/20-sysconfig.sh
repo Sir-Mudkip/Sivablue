@@ -3,9 +3,10 @@
 echo "::group:: System Configuration"
 
 # Enable/disable systemd services
-# systemctl enable podman.socket
 # Example: systemctl mask unwanted-service
-systemctl --global enable podman-auto-update.timer
+systemctl enable podman-auto-update.timer
+systemctl enable podman.socket
+systemctl enable docker.socket
 
 echo "Disabling print services"
 systemctl disable cups.socket
