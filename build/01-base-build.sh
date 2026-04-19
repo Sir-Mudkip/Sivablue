@@ -47,6 +47,9 @@ echo "::group:: Building Image..."
 # Validate Repos
 /ctx/build/40-validate-repos.sh
 
+# Clean Stage
+/ctx/build/45-clean-stage.sh
+
 echo "::endgroup::"
 
 echo "Finalising build"
