@@ -1,15 +1,18 @@
-#   Welcome to the Sivablue!
+#   Welcome to Sivablue!
 
-Consider running the following to get setup:
+The whole point of this OS to remove the massive headache of dealing with drivers, and reconfiguring a system when stuff goes south. The image comes with VM support, podman, and docker out the box. The following will get you setup quickly:
 
 |  Command             |  Description |
 |-----------------------|---------------------------------------|
 | `ujust get-dotfiles`  | Pulls Creator Dotfiles|
 | `ujust setup-gnome`   | Extra Gnome Windows |
 | `ujust pull-seclists` | Pulls Seclists to `~/toolkit`|
-| `ujust configure-nvidia`| Nvidia Driver Config (Nvidia Images)|
-| `ujust pull-hashcat`| Pulls Hashcat Container|
+| `ujust pull-hashcat`| Pulls Hashcat Container (Nvidia Images)|
 | `ujust --choose`| Lists commands available |
+
+Grab Kali and Metasploit:
+`sudo podman pull ghcr.io/sir-mudkip/kali-base:latest`
+`sudo podman pull registry.gitlab.com/snotra.uk/containers/metasploit-framework`
 
 Hide this message with:
 `touch ~/.hushlogin`

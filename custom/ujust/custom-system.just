@@ -16,9 +16,9 @@ get-dotfiles:
 pull-hashcat:
     #!/usr/bin/env bash
     source /usr/lib/ujust/ujust.sh
-    distrobox create --nvidia --image ghcr.io/sir-mudkip/hashcat-distrobox:latest -Y --name hashcat-cuda
+    distrobox create --nvidia --name hashcat-cuda --no-entry -Y --image ghcr.io/sir-mudkip/hashcat-distrobox:latest
     export PATH="$HOME/.local/bin:$PATH"
-    echo "To use hashcat like a local device, run the following commands in order:"
+    echo "To use hashcat like a local binary, run the following commands in order:"
     echo "\`distrobox enter hashcat-cuda\`" | glow
     echo "\`distrobox-export --bin /usr/bin/hashcat\`" | glow
 
