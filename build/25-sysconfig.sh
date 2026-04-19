@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+set -eoux pipefail
+
 echo "::group:: System Configuration"
 
 # Disable + mask a unit so nothing (not even a dep) can start it
@@ -37,15 +39,7 @@ systemctl enable \
     libvirt-workaround.service \
     flatpak-nuke-fedora.service \
     brew-setup.service \
-    input-remapper.service \
-    rpm-ostree-countme.service \
-    ublue-system-setup.service \
     uupd.timer
-
-echo "Enabling per-user services"
-systemctl --global enable \
-    podman-auto-update.timer \
-    ublue-user-setup.service
 
 # Load swtpm SELinux policy modules so restorecon can label /usr/bin/swtpm correctly at boot
 echo "Installing swtpm SELinux modules"
