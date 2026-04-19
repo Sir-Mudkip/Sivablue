@@ -12,7 +12,7 @@ The whole point of this OS to remove the massive headache of dealing with driver
 
 Grab Kali and Metasploit:
 `sudo podman pull ghcr.io/sir-mudkip/kali-base:latest`
-`sudo podman pull registry.gitlab.com/snotra.uk/containers/metasploit-framework`
+`sudo podman pull ghcr.io/sir-mudkip/metasploit:latest`
 
 Hide this message with:
 `touch ~/.hushlogin`
