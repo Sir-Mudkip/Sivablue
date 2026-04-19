@@ -4,8 +4,8 @@ echo "::group:: ===$(basename "$0")==="
 
 set -eoux pipefail
 
-#disable the old rpm-ostreed-automatic.timer
-systemctl disable rpm-ostreed-automatic.timer
+# Prevent Distrobox containers from being updated via the background service
+sed -i 's|uupd|& --disable-module-distrobox|' /usr/lib/systemd/system/uupd.service
 
 # Hide Desktop Files. Hidden removes mime associations
 for file in fish htop nvtop; do
@@ -13,6 +13,10 @@ for file in fish htop nvtop; do
         sed -i 's@\[Desktop Entry\]@\[Desktop Entry\]\nHidden=true@g' /usr/share/applications/"$file".desktop
     fi
 done
+
+#Add the Flathub Flatpak remote and remove the Fedora Flatpak remote
+flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+systemctl disable flatpak-add-fedora-repos.service
 
 # NOTE: With isolated COPR installation, most repos are never enabled globally.
 # We only need to clean up repos that were enabled during the build process.
@@ -48,17 +52,4 @@ if [ -f /etc/yum.repos.d/fedora-coreos-pool.repo ]; then
     sed -i 's@enabled=1@enabled=0@g' /etc/yum.repos.d/fedora-coreos-pool.repo
 fi
 
-
-dnf clean all
-
-systemctl mask flatpak-add-fedora-repos.service
-rm -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service
-
-rm -rf /.gitkeep
-find /var/* -maxdepth 0 -type d \! -name cache -exec rm -fr {} \;
-find /var/cache/* -maxdepth 0 -type d \! -name libdnf5 \! -name rpm-ostree -exec rm -fr {} \;
-rm -rf /tmp && mkdir -p /tmp
-rm -rf /boot && mkdir -p /boot
-
 echo "::endgroup::"
-

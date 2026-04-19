@@ -145,6 +145,15 @@ if [[ "${#EXCLUDED_PACKAGES[@]}" -gt 0 ]]; then
     fi
 fi
 
+if [[ "${VARIANT}" == nvidia ]]; then
+    dnf5 -remove -y \
+        nvidia-gpu-firmware \
+        rocm-hip \
+        rocm-opencl \
+        rocm-clinfo \
+        rocm-smi
+fi
+
 echo "All packages installed"
 
 echo "::endgroup::"

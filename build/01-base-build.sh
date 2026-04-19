@@ -1,10 +1,5 @@
 #!/usr/bin/bash
 
-echo "Foundations"
-
-# Image Identity
-/ctx/build/00-image-info.sh
-
 echo "::group:: Copy Custom Files"
 
 # Copy Brewfiles to standard location
@@ -25,23 +20,32 @@ echo "::endgroup::"
 
 echo "::group:: Building Image..."
 
+# Image Identity
+/ctx/build/00-image-info.sh
+
+# Nvidia Akmods
+/ctx/build/05-kernel-akmods.sh
+
 # Install Packages
 /ctx/build/10-packages.sh
 
 # Install Extensions
-/ctx/build/11-extensions.sh
+/ctx/build/15-extensions.sh
 
 # Overrides
-/ctx/build/12-overrides-install.sh
+/ctx/build/20-overrides-install.sh
 
 # System Config
-/ctx/build/20-sysconfig.sh
+/ctx/build/25-sysconfig.sh
+
+# Initramfs Regeneration
+/ctx/build/30-initramfs.sh
 
 # Clean Scripts
-/ctx/build/50-clean.sh
+/ctx/build/35-clean.sh
 
 # Validate Repos
-/ctx/build/55-validate-repos.sh
+/ctx/build/40-validate-repos.sh
 
 echo "::endgroup::"
 

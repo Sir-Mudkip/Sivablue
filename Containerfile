@@ -36,25 +36,16 @@
 
 # Context stage - combine local and imported OCI container resources
 ARG BASE_IMAGE="${BASE_IMAGE:-ghcr.io/ublue-os/silverblue-main:latest}"
-ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-main}"
-ARG FEDORA_VERSION="${FEDORA_VERSION:-43}"
-ARG ARCHITECTURE="${ARCHITECTURE:-x86_64}"
-ARG VARIANT="base"
-
+ARG BASE_IMAGE_NAME="silverblue"
 FROM scratch AS ctx
 
 COPY build /build
 COPY custom /custom
 COPY system /system
 
-# Import nvidia akmods prior to setting base stage
-FROM ghcr.io/ublue-os/akmods-nvidia-open:${KERNEL_FLAVOR}-${FEDORA_VERSION}-${ARCHITECTURE} AS nvidia-akmods
-
 # Copy from OCI containers to distinct subdirectories to avoid conflicts
 # Base Image - GNOME included
-FROM ghcr.io/ublue-os/silverblue-main:latest AS base
-ARG VARIANT
-ARG FEDORA_VERSION
+FROM ${BASE_IMAGE} AS base
 
 # Make /opt immutable
 RUN rm /opt && mkdir /opt
@@ -75,39 +66,19 @@ RUN --mount=type=cache,dst=/var/cache \
     /usr/bin/systemctl preset brew-update.timer && \
     /usr/bin/systemctl preset brew-upgrade.timer
 
+FROM base AS final
+
+ARG BASE_IMAGE_NAME="silverblue"
+ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-main}"
+ARG FEDORA_VERSION="${FEDORA_VERSION:-43}"
+ARG ARCHITECTURE="${ARCHITECTURE:-x86_64}"
+ARG VARIANT="base"
+
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
     /ctx/build/01-base-build.sh
-
-# Nvidia Stage
-FROM base AS nvidia
-# Remove conflicting packages
-RUN --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
-    --mount=type=bind,from=ctx,source=/,target=/ctx \
-    --mount=type=tmpfs,dst=/tmp \
-    dnf5 -y remove \
-        nvidia-gpu-firmware \
-        rocm-hip \
-        rocm-opencl \
-        rocm-clinfo \
-        rocm-smi || true
-
-# Install Nvidia drivers
-RUN --mount=type=cache,dst=/var/cache \
-    --mount=type=cache,dst=/var/log \
-    --mount=type=bind,from=ctx,source=/,target=/ctx \
-    --mount=type=bind,from=nvidia-akmods,src=/rpms,dst=/tmp/akmods-rpms \
-    --mount=type=tmpfs,dst=/tmp \
-    --mount=type=secret,id=GITHUB_TOKEN \
-    IMAGE_NAME="${BASE_IMAGE_NAME}" AKMODNV_PATH="/tmp/akmods-rpms" MULTILIB=0 /tmp/akmods-rpms/ublue-os/nvidia-install.sh && \
-    rm -f /usr/share/vulkan/icd.d/nouveau_icd.*.json && \
-    ln -s libnvidia-ml.so.1 /usr/lib64/libnvidia-ml.so && \
-    /ctx/build/50-clean.sh
-
-FROM ${VARIANT} AS final
 
 ### LINTING
 ## Verify final image and contents are correct.
