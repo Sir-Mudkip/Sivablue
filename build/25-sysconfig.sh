@@ -2,7 +2,7 @@
 
 set -eoux pipefail
 
-echo "::group:: System Configuration"
+echo "::group:: ==$(basename "$0")=="
 
 # Disable + mask a unit so nothing (not even a dep) can start it
 mask_unit() {

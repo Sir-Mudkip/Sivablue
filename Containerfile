@@ -69,6 +69,7 @@ RUN --mount=type=cache,dst=/var/cache \
 FROM base AS final
 
 ARG BASE_IMAGE_NAME="silverblue"
+ARG IMAGE_NAME="sivablue"
 ARG KERNEL_FLAVOR="${KERNEL_FLAVOR:-main}"
 ARG FEDORA_VERSION="${FEDORA_VERSION:-43}"
 ARG ARCHITECTURE="${ARCHITECTURE:-x86_64}"
