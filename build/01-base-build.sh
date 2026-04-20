@@ -50,6 +50,9 @@ echo "::group:: Building Image..."
 # Clean Stage
 /ctx/build/45-clean-stage.sh
 
+# Tests
+/ctx/build/50-tests.sh
+
 echo "::endgroup::"
 
 echo "Finalising build"
