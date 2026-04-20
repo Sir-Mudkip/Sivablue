@@ -39,7 +39,8 @@ systemctl enable \
     libvirt-workaround.service \
     flatpak-nuke-fedora.service \
     brew-setup.service \
-    uupd.timer
+    uupd.timer \
+    rpm-ostree-countme.timer
 
 # Load swtpm SELinux policy modules so restorecon can label /usr/bin/swtpm correctly at boot
 echo "Installing swtpm SELinux modules"
