@@ -10,9 +10,9 @@
 install-brew-tools:
     #!/usr/bin/env bash
     echo "Installing all applications from Brewfiles..."
-    brew bundle --file /usr/share/ublue-os/homebrew/default.Brewfile
-    brew bundle --file /usr/share/ublue-os/homebrew/development.Brewfile
-    brew bundle --file /usr/share/ublue-os/homebrew/gui.Brewfile
+    brew bundle --file /usr/share/sivablue/homebrew/default.Brewfile
+    brew bundle --file /usr/share/sivablue/homebrew/development.Brewfile
+    brew bundle --file /usr/share/sivablue/homebrew/gui.Brewfile
 
 # Install a Flatpak application from Flathub
 [group('Apps')]

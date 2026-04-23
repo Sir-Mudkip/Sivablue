@@ -4,7 +4,7 @@ echo "::group:: Copy Custom Files"
 
 # Copy Brewfiles to standard location
 echo "Copying Brewfiles"
-mkdir -p /usr/share/ublue-os/homebrew/
+mkdir -p /usr/share/sivablue/homebrew/
 cp /ctx/custom/brew/*.Brewfile /usr/share/sivablue/homebrew/
 
 # Consolidate Just Files
