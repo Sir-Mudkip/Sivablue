@@ -33,6 +33,7 @@ FEDORA_PACKAGES=(
     glow
     gnome-tweaks
     gocryptfs
+    gum
     igt-gpu-tools
     iwd
     libvirt
@@ -56,7 +57,6 @@ FEDORA_PACKAGES=(
     ripgrep
     setools-console
     swtpm-tools
-    syncthing
     udica
     virt-manager
     virt-v2v
