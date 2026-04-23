@@ -104,6 +104,9 @@ pull-bloodhound:
     echo 'alias bloodhound-up="docker compose -f $HOME/toolkit/bloodhound/docker-compose.yml up -d"' > $HOME/.bashrc.d/bloodhound.rc
     echo 'alias bloodhound-down="docker compose -f $HOME/toolkit/bloodhound/docker-compose.yml down"' >> $HOME/.bashrc.d/bloodhound.rc
     echo 'alias bloodhound-logs="docker compose -f $HOME/toolkit/bloodhound/docker-compose.yml logs -f"' >> $HOME/.bashrc.d/bloodhound.rc
+    echo "Three aliases have been setup for you. To start and stop bloodhound, run the following:"
+    echo "\`bloodhound-up\`" | glow
+    echo "\`bloodhound-down\`" | glow
 
 [group('System')]
 install-clipboard-indicator:
