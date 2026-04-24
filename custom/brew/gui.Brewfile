@@ -1,4 +1,5 @@
-# GUI Applications
+## GUI Applications
+# Examples
 flatpak "net.waterfox.waterfox"
 flatpak "io.github.kolunmi.Bazaar"
 flatpak "io.podman_desktop.PodmanDesktop"

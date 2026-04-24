@@ -18,15 +18,13 @@ BACKUP_KEY_SHA256="b723467015ba562d40b4645c98c51c65d8254bb59444f6e9962debcfe2315
 echo "${KEY1_SHA256}  ${KEY1}" | sha256sum -c -
 echo "${BACKUP_KEY_SHA256}  ${BACKUP_KEY}" | sha256sum -c -
 
-for i in bin/ujust share/ublue-os/just/{00-entry.just,apps.just,default.just,system.just,update.just,} ; do
+for i in bin/ujust share/ublue-os/just/{60-entry.just,custom-apps.just,default.just,custom-system.just,update.just,} ; do
    stat /usr/$i
 done
 
-test -f /usr/share/ublue-os/homebrew/fonts.Brewfile
-
 # If this file is not on the image bazaar will automatically be removed from users systems :(
 # See: https://docs.flatpak.org/en/latest/flatpak-command-reference.html#flatpak-preinstall
-test -f /usr/share/flatpak/preinstall.d/bazaar.preinstall
+test -f /usr/share/flatpak/preinstall.d/default.preinstall
 
 # Basic smoke test to check if the flatpak version is from our copr
 flatpak preinstall --help
@@ -36,10 +34,7 @@ test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 
 IMPORTANT_PACKAGES=(
     distrobox
-    fish
     flatpak
-    mutter
-    pipewire
     gnome-shell
     ptyxis
     gdm
@@ -47,7 +42,6 @@ IMPORTANT_PACKAGES=(
     tailscale
     uupd
     wireplumber
-    zsh
 )
 
 for package in "${IMPORTANT_PACKAGES[@]}"; do
