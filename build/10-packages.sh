@@ -21,6 +21,50 @@ echo "::group:: ===$(basename "$0")==="
 # Install packages using dnf5
 # Example: dnf5 install -y tmux
 
+# Docker Prep
+# Apply IP Forwarding before installing Docker to prevent messing with LXC networking
+sysctl -p
+# Load iptable_nat module for docker-in-docker.
+# See:
+#   - https://github.com/ublue-os/bluefin/issues/2365
+#   - https://github.com/devcontainers/features/issues/1235
+mkdir -p /etc/modules-load.d
+tee /etc/modules-load.d/ip_tables.conf <<EOF
+iptable_nat
+EOF
+
+dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+sed -i "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/docker-ce.repo
+dnf -y install --enablerepo=docker-ce-stable \
+    containerd.io \
+    docker-buildx-plugin \
+    docker-ce \
+    docker-ce-cli \
+    docker-compose-plugin \
+    docker-model-plugin
+
+# Flatpak
+echo "Back patching of flatpak"
+dnf -y copr enable ublue-os/flatpak-test
+dnf -y copr disable ublue-os/flatpak-test
+dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak flatpak
+dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak-libs flatpak-libs
+dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak-session-helper flatpak-session-helper
+dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test install flatpak-debuginfo flatpak-libs-debuginfo flatpak-session-helper-debuginfo
+
+echo "Installing Tailscale"
+# Enable and install tailscale
+dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+dnf config-manager setopt tailscale-stable.enabled=0
+dnf -y install --enablerepo='tailscale-stable' tailscale
+
+echo "VSCode Install"
+sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
+echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\nautorefresh=1\ntype=rpm-md\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" | sudo tee /etc/yum.repos.d/vscode.repo > /dev/null
+dnf install -y code
+
+echo "Main Packages"
+
 FEDORA_PACKAGES=(
     adwaita-fonts-all
     dbus-x11
@@ -66,43 +110,6 @@ FEDORA_PACKAGES=(
 # Install all Fedora packages (bulk - safe from COPR injection)
 echo "Installing ${#FEDORA_PACKAGES[@]} packages from Fedora repos..."
 dnf -y install "${FEDORA_PACKAGES[@]}"
-
-# Docker
-# Apply IP Forwarding before installing Docker to prevent messing with LXC networking
-sysctl -p
-# Load iptable_nat module for docker-in-docker.
-# See:
-#   - https://github.com/ublue-os/bluefin/issues/2365
-#   - https://github.com/devcontainers/features/issues/1235
-mkdir -p /etc/modules-load.d
-tee /etc/modules-load.d/ip_tables.conf <<EOF
-iptable_nat
-EOF
-
-dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
-sed -i "s/enabled=.*/enabled=0/g" /etc/yum.repos.d/docker-ce.repo
-dnf -y install --enablerepo=docker-ce-stable \
-    containerd.io \
-    docker-buildx-plugin \
-    docker-ce \
-    docker-ce-cli \
-    docker-compose-plugin \
-    docker-model-plugin
-
-# Flatpak
-echo "Back patching of flatpak"
-dnf -y copr enable ublue-os/flatpak-test
-dnf -y copr disable ublue-os/flatpak-test
-dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak flatpak
-dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak-libs flatpak-libs
-dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak-session-helper flatpak-session-helper
-dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test install flatpak-debuginfo flatpak-libs-debuginfo flatpak-session-helper-debuginfo
-
-echo "Installing Tailscale"
-# Enable and install tailscale
-dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-dnf config-manager setopt tailscale-stable.enabled=0
-dnf -y install --enablerepo='tailscale-stable' tailscale
 
 # Example using COPR with isolated pattern:
 # copr_install_isolated "ublue-os/staging" package-name

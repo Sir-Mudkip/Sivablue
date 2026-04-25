@@ -4,8 +4,31 @@
 #######################
 ## Example system configuration commands
 ## These are simplified examples adapted from Bluefin
-
 # Run a system benchmark (requires stress-ng from Homebrew)
+
+[group('System')]
+toggle-passwordless:
+    #!/usr/bin/env bash
+    source /usr/lib/ujust/ujust.sh
+    PASSWORDLESS="/etc/sudoers.d/wheel-nopasswd"
+    if [ -f "$PASSWORDLESS" ]; then
+        if ! gum confirm "Passwordless Sudo is currently enabled. Would you like to disable it?"; then
+            echo "Cancelling Operation"
+            exit 0
+        fi
+        sudo rm "$PASSWORDLESS"
+        echo "Sudoless Passwordless Disbaled"
+    else if ! gum confirm "WARNING: CONFIGURING THIS CAN BE A SECURITY RISK. IF AN ATTACKER CAN ACCESS YOUR USER, THEN CAN RUN ANYTHING AS ROOT. Are you sure you want to continue?"; then
+            echo "Cancelling Operation"
+            exit 0
+        fi
+        echo "You will need to enter a password for this"
+        sudo echo '%wheel ALL=(ALL) NOPASSWD: ALL' | sudo tee "$PASSWORDLESS" > /dev/null
+        sudo chmod 0440 "$PASSWORDLESS"
+        sudo visudo -c -f "$PASSWORDLESS"
+        echo "Passwordless Sudo Enabled. ENSURE YOU'RE UPDATED AND HAVE A STRONG PASSWORD"
+    fi
+
 [group('System')]
 benchmark:
     #!/usr/bin/env bash
