@@ -28,8 +28,9 @@ pull-seclists:
     source /usr/lib/ujust/ujust.sh
     mkdir -p $HOME/toolkit/
     git clone --depth 1 https://github.com/danielmiessler/SecLists.git $HOME/toolkit/seclists
+    echo "Extracting rockyou.txt"
     tar -xzvf $HOME/toolkit/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz -C $HOME/toolkit/seclists/Passwords/Leaked-Databases/
-    echo "Seclists and Rockyou are ready to be used"
+    glow /etc/misc.d/seclists-install.md
 
 [group('System')]
 pull-kali:
@@ -46,11 +47,7 @@ pull-kali:
     fi
 
     curl -fsSL https://raw.githubusercontent.com/Sir-Mudkip/dotfiles/refs/heads/master/shell/bashrc.d/kali.rc > $HOME/.bashrc.d/kali.rc
-    echo "Kali is now aliased. To run, start a new terminal session with:"
-    echo "\`kali-base\`" | glow
-    echo "To run Kali with the properties of a VM, run the following:"
-    echo "kali-vm" | glow
-    echo "sudo podman exec -it kali bash" | glow
+    glow /etc/misc.d/kali-install.md
 
 [group('System')]
 pull-metasploit:
@@ -68,12 +65,7 @@ pull-metasploit:
     fi
 
     curl -fsSL https://raw.githubusercontent.com/Sir-Mudkip/dotfiles/refs/heads/master/shell/bashrc.d/msf.rc > $HOME/.bashrc.d/msf.rc
-    echo "Metasploit is now aliased. To run, start a new terminal session with:"
-    echo "\`podman-msf\`" | glow
-    echo "To run a persistent Metasploit session with a db, run:"
-    echo "\`podman-msf [NAME_HERE]\`" | glow
-    echo "To reconnect to that msf session, run:
-    echo "\`podman-msf-connect [NAME_HERE]\`" | glow
+    glow /etc/misc.d/msf-install.md
 
 [group('System')]
 pull-seclists:
@@ -82,31 +74,36 @@ pull-seclists:
     mkdir -p $HOME/toolkit/
     git clone --depth 1 https://github.com/danielmiessler/SecLists.git $HOME/toolkit/seclists
     tar -xzvf $HOME/toolkit/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz -C $HOME/toolkit/seclists/Passwords/Leaked-Databases/
-    echo "Seclists and Rockyou are ready to be used"
+    glow /etc/misc.d/seclists-install.md
 
 [group('System')]
 pull-bloodhound:
     #!/usr/bin/env bash
     source /usr/lib/ujust/ujust.sh
-    set -euo pipefail
     mkdir -p $HOME/toolkit/bloodhound/
     curl -fsSL https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/docker-compose.yml > $HOME/toolkit/bloodhound/docker-compose.yml
     curl -fsSL https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/bloodhound.config.json > $HOME/toolkit/bloodhound/bloodhound.config.json
     curl -fsSL https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/.env.example > $HOME/toolkit/bloodhound/.env.example
     curl -fsSL https://raw.githubusercontent.com/SpecterOps/BloodHound/refs/heads/main/examples/docker-compose/README.md > $HOME/toolkit/bloodhound/README.md
-    echo "Bloodhound has been install in ~/toolkit/bloodhound. To use, navigate to your bloodhound directory, and run the following:"
-    echo "\`docker compose -f $HOME/toolkit/bloodhound/docker-compose.yml up -d\`" | glow
+    glow /etc/misc.d/01-bloodhound-install.md
 
-    if ! gum confirm "Would you like bloodhound aliased?"; then
-        echo "Skipping alias configuration"
-        exit 0
-    fi
-    echo 'alias bloodhound-up="docker compose -f $HOME/toolkit/bloodhound/docker-compose.yml up -d"' > $HOME/.bashrc.d/bloodhound.rc
-    echo 'alias bloodhound-down="docker compose -f $HOME/toolkit/bloodhound/docker-compose.yml down"' >> $HOME/.bashrc.d/bloodhound.rc
-    echo 'alias bloodhound-logs="docker compose -f $HOME/toolkit/bloodhound/docker-compose.yml logs -f"' >> $HOME/.bashrc.d/bloodhound.rc
-    echo "Three aliases have been setup for you. To start and stop bloodhound, run the following:"
-    echo "\`bloodhound-up\`" | glow
-    echo "\`bloodhound-down\`" | glow
+    PROMPT=$(gum choose --header "Would you like to alias with:" "Podman" "Docker" "Skip Alias Setup")
+    case "$PROMPT" in
+        "Podman")
+            COMPOSE_CMD="podman-compose"
+        ;;
+        "Docker")
+            COMPOSE_CMD="docker compose"
+        ;;
+        *)
+            "echo Skipping Alias configuration"
+            exit 0
+        ;;
+    esac
+    echo "alias bloodhound-up=\"$COMPOSE_CMD -f \$HOME/toolkit/bloodhound/docker-compose.yml up -d\"" > $HOME/.bashrc.d/bloodhound.rc
+    echo "alias bloodhound-down=\"$COMPOSE_CMD -f \$HOME/toolkit/bloodhound/docker-compose.yml down\"" >> $HOME/.bashrc.d/bloodhound.rc
+    echo "alias bloodhound-logs=\"$COMPOSE_CMD -f \$HOME/toolkit/bloodhound/docker-compose.yml logs -f\"" >> $HOME/.bashrc.d/bloodhound.rc
+    glow /etc/misc.d/02-bloodhound-install.md
 
 [group('System')]
 install-clipboard-indicator:
