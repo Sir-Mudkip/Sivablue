@@ -9,8 +9,16 @@
 get-dotfiles:
     #!/usr/bin/env bash
     source /usr/lib/ujust/ujust.sh
-    git clone https://github.com/Sir-Mudkip/dotfiles $HOME/dotfiles
-    echo "To install these dotfiles, simply run \`./dotfiles/install.sh\`" | glow
+    OPTION=$(gum choose --header "Which of the following dotfiles would you like to install?" "Personal" "Sir-Mudkip's" "None")
+    if [[ $OPTION == "Personal" ]]; then
+        DOTFILES=$(gum input --prompt "Specify your dotfiles path: " --placeholder "https://dotfiles.url")
+        git clone $DOTFILES
+    elif [[ $OPTION == "Sir-Mudkip's" ]]; then
+        git clone https://github.com/Sir-Mudkip/dotfiles $HOME/dotfiles
+        echo "To install these dotfiles, simply run \`./dotfiles/install.sh\`" | glow
+    else 
+        echo "Cancelling"
+    fi
 
 [group('System')]
 pull-hashcat:
@@ -18,9 +26,7 @@ pull-hashcat:
     source /usr/lib/ujust/ujust.sh
     distrobox create --nvidia --name hashcat-cuda --no-entry -Y --image ghcr.io/sir-mudkip/hashcat-distrobox:latest
     export PATH="$HOME/.local/bin:$PATH"
-    echo "To use hashcat like a local binary, run the following commands in order:"
-    echo "\`distrobox enter hashcat-cuda\`" | glow
-    echo "\`distrobox-export --bin /usr/bin/hashcat\`" | glow
+    glow /etc/misc.d/hashcat-install.md
 
 [group('System')]
 pull-seclists:
@@ -66,15 +72,6 @@ pull-metasploit:
 
     curl -fsSL https://raw.githubusercontent.com/Sir-Mudkip/dotfiles/refs/heads/master/shell/bashrc.d/msf.rc > $HOME/.bashrc.d/msf.rc
     glow /etc/misc.d/msf-install.md
-
-[group('System')]
-pull-seclists:
-    #!/usr/bin/env bash
-    source /usr/lib/ujust/ujust.sh
-    mkdir -p $HOME/toolkit/
-    git clone --depth 1 https://github.com/danielmiessler/SecLists.git $HOME/toolkit/seclists
-    tar -xzvf $HOME/toolkit/seclists/Passwords/Leaked-Databases/rockyou.txt.tar.gz -C $HOME/toolkit/seclists/Passwords/Leaked-Databases/
-    glow /etc/misc.d/seclists-install.md
 
 [group('System')]
 pull-bloodhound:
