@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-SETUP_CHECKER_FILE="${SETUP_CHECKER_FILE:-$HOME/.local/share/ublue/setup_versioning.json}"
+SETUP_CHECKER_FILE="${SETUP_CHECKER_FILE:-$HOME/.local/share/sivablue/setup_versioning.json}"
 
 # Meant to be used at the start of any setup service script. Will version your script accordingly on $SETUP_CHECKER_FILE
 # :target_versioning_name: Whatever you want to name your versioning tag. Please keep it always the same

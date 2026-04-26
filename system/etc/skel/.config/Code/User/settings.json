@@ -2,5 +2,22 @@
     "window.titleBarStyle": "custom",
     "editor.fontFamily": "'Cascadia Code', 'Droid Sans Mono', 'monospace', monospace, 'Symbols Nerd Font Mono'",
     "update.mode": "none",
-    "telemetry.telemetryLevel": "off"
+    "telemetry.telemetryLevel": "off",
+    "telemetry.feedback.enabled": false,
+    "telemetry.editStats.enabled": false,
+    "telemetry.performance.inputLatencySamplingProbability": 0,
+    "workbench.remoteIndicator.showExtensionRecommendations": false,
+    "workbench.colorTheme": "Monokai Night",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/id_rsa": true,
+        "**/id_ed25519": true,
+        "**/*.gpg": true,
+        "**/*.asc": true,
+        "**/cosign.key": true
+    }
 }
