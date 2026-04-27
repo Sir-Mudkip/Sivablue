@@ -27,7 +27,6 @@ echo "Enabling system services"
 systemctl enable \
     podman.socket \
     docker.socket \
-    podman-auto-update.timer \
     flatpak-preinstall.service \
     dconf-update.service \
     set-hostname.service \
@@ -38,10 +37,16 @@ systemctl enable \
     swtpm-workaround.service \
     libvirt-workaround.service \
     flatpak-nuke-fedora.service \
-    sivablue-user-setup.service \
     brew-setup.service \
     uupd.timer \
     rpm-ostree-countme.timer
+
+systemctl --global enable \
+    podman-auto-update.timer \
+    sivablue-user-setup.service
+
+# Prevent Distrobox containers from being updated via the background service
+sed -i 's|uupd|& --disable-module-distrobox|' /usr/lib/systemd/system/uupd.service
 
 # Load swtpm SELinux policy modules so restorecon can label /usr/bin/swtpm correctly at boot
 echo "Installing swtpm SELinux modules"
