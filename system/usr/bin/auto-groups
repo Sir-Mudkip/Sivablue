@@ -22,7 +22,14 @@ append_group() {
 append_group docker
 append_group libvirt
 
+
 wheelarray=($(getent group wheel | cut -d ":" -f 4 | tr ',' '\n'))
+
+if [[ ${#wheelarray[@]} -eq 0 ]]; then
+    echo "No wheel members yet; will retry."
+    exit 1
+fi
+
 for user in "${wheelarray[@]}"; do
   usermod -aG docker,libvirt "$user"
 done
