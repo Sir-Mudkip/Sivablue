@@ -38,6 +38,7 @@ systemctl enable \
     swtpm-workaround.service \
     libvirt-workaround.service \
     flatpak-nuke-fedora.service \
+    sivablue-user-setup.service \
     brew-setup.service \
     uupd.timer \
     rpm-ostree-countme.timer
