@@ -3,7 +3,6 @@
 flatpak "net.waterfox.waterfox"
 flatpak "io.github.kolunmi.Bazaar"
 flatpak "io.podman_desktop.PodmanDesktop"
-flatpak "com.vscodium.codium"
 flatpak "me.iepure.devtoolbox"
 flatpak "com.ranfdev.DistroShelf"
 flatpak "io.github.flattool.Warehouse"
