@@ -1,3 +1,0 @@
-[[customizations.filesystem]]
-mountpoint = "/"
-minsize = "50 GiB"
