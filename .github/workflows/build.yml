@@ -128,39 +128,26 @@ jobs:
           labels: ${{ steps.metadata.outputs.labels }}
           oci: false
 
-      - name: Rechunk Image
-        run: |
-          set -euo pipefail
-          TARBALL="/var/tmp/transfer.tar"
-          IMG="${{ env.IMAGE_NAME }}${{ matrix.suffix }}"
-          TAG="${{ env.DEFAULT_TAG }}"
-          podman save -o "${TARBALL}" "localhost/${IMG}:${TAG}"
-          sudo podman load -i "${TARBALL}"
-          sudo rm "${TARBALL}"
-
-          # Rechunk Image in Root
-          sudo podman run --rm --privileged \
-            -v /var/lib/containers:/var/lib/containers \
-            --entrypoint /usr/libexec/bootc-base-imagectl \
-            "localhost/${IMG}:${TAG}" \
-            rechunk --max-layers 67 \
-            "localhost/${IMG}:${TAG}" \
-            "localhost/${IMG}:${TAG}-rechunked"
-          
-          # Tag the rechunked image with the original tag
-          sudo podman tag "localhost/${IMG}:${TAG}-rechunked" "localhost/${IMG}:${TAG}"
-          sudo podman rmi "localhost/${IMG}:${TAG}-rechunked"
-
-          # Load image back into rootless podman
-          sudo podman save -o "${TARBALL}" "localhost/${IMG}:${TAG}"
-          sudo chown "$(id -u):$(id -g)" "${TARBALL}"
-          podman rmi "localhost/${IMG}:${TAG}" || true
-          podman load -i "${TARBALL}"
-          sudo rm "${TARBALL}"
+      # Rechunk is a script that we use on Universal Blue to make sure there isnt a single huge layer when your image gets published.
+      # This does not make your image faster to download, just provides better resumability and fixes a few errors.
+      # Documentation for Rechunk is provided on their github repository at https://github.com/hhd-dev/rechunk
+      # You can enable it by uncommenting the following lines:
+      - name: Run Rechunker
+        id: rechunk
+        uses: ublue-os/legacy-rechunk@a925083d9af7cb04b3e2a6e8c01bfa495f38b710 # v1.0.0
+        with:
+          rechunk: 'ghcr.io/ublue-os/legacy-rechunk:v1.0.0-x86_64'
+          ref: "localhost/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}"
+          prev-ref: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}"
+          skip_compression: true
+          # version: ${{ env.CENTOS_VERSION }}
+          labels: ${{ steps.metadata.outputs.labels }} # Rechunk strips out all the labels during build, this needs to be reapplied here with newline separator
 
       # Tag for registry
       - name: Tag for registry
         run: |
+          IMAGE=$(podman pull ${{ steps.rechunk.outputs.ref }})
+          sudo rm -rf ${{ steps.rechunk.outputs.output }}
           for tag in ${{ steps.metadata.outputs.tags }}; do
             podman tag ${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }} ${{ env.IMAGE_NAME }}${{ matrix.suffix }}:$tag
           done
@@ -245,7 +232,7 @@ jobs:
       - name: Add SBOM Attestation
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         env:
-          IMAGE: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          IMAGE: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}
           DIGEST: ${{ steps.push.outputs.digest }}
           COSIGN_PRIVATE_KEY: ${{ secrets.SIGNING_SECRET }}
           SBOM_OUTPUT: ${{ steps.generate-sbom.outputs.OUTPUT_PATH }}
