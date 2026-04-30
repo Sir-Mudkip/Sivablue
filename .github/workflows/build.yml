@@ -132,22 +132,20 @@ jobs:
       # This does not make your image faster to download, just provides better resumability and fixes a few errors.
       # Documentation for Rechunk is provided on their github repository at https://github.com/hhd-dev/rechunk
       # You can enable it by uncommenting the following lines:
-      - name: Run Rechunker
-        id: rechunk
-        uses: ublue-os/legacy-rechunk@a925083d9af7cb04b3e2a6e8c01bfa495f38b710 # v1.0.0
-        with:
-          rechunk: 'ghcr.io/ublue-os/legacy-rechunk:v1.0.0-x86_64'
-          ref: "localhost/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}"
-          prev-ref: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}"
-          skip_compression: true
-          # version: ${{ env.CENTOS_VERSION }}
-          labels: ${{ steps.metadata.outputs.labels }} # Rechunk strips out all the labels during build, this needs to be reapplied here with newline separator
+      #- name: Run Rechunker
+      #  id: rechunk
+      #  uses: ublue-os/legacy-rechunk@a925083d9af7cb04b3e2a6e8c01bfa495f38b710 # v1.0.0
+      #  with:
+      #    rechunk: 'ghcr.io/ublue-os/legacy-rechunk:v1.0.0-x86_64'
+      #    ref: "localhost/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}"
+      #    prev-ref: "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}"
+      #    skip_compression: true
+      #    # version: ${{ env.CENTOS_VERSION }}
+      #    labels: ${{ steps.metadata.outputs.labels }} # Rechunk strips out all the labels during build, this needs to be reapplied here with newline separator
 
       # Tag for registry
       - name: Tag for registry
         run: |
-          IMAGE=$(podman pull ${{ steps.rechunk.outputs.ref }})
-          sudo rm -rf ${{ steps.rechunk.outputs.output }}
           for tag in ${{ steps.metadata.outputs.tags }}; do
             podman tag ${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }} ${{ env.IMAGE_NAME }}${{ matrix.suffix }}:$tag
           done
