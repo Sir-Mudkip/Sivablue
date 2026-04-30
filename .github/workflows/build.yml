@@ -20,6 +20,7 @@ env:
   IMAGE_NAME: "${{ github.event.repository.name }}"  # output image name, usually same as repo name
   IMAGE_REGISTRY: "ghcr.io/${{ github.repository_owner }}"  # do not edit
   DEFAULT_TAG: "stable"
+  TARBALL: "/var/lib/containes/transfer.tar"
 
 jobs:
   build_push:
@@ -128,6 +129,35 @@ jobs:
           labels: ${{ steps.metadata.outputs.labels }}
           oci: false
 
+      - name: Rechunk Image
+        run: |
+          set -euo pipefail
+          TARBALL="/var/lib/containers/transfer.tar"
+          IMG="${{ env.IMAGE_NAME }}${{ matrix.suffix }}"
+          TAG="${{ env.DEFAULT_TAG }}"
+          podman save -o "${TARBALL}" "localhost/${IMG}:${TAG}"
+          sudo podman load -i "${TARBALL}"
+          sudo rm "${TARBALL}"
+
+          # Rechunk Image in Root
+          sudo podman run --rm --privileged \
+            -v /var/lib/containers:/var/lib/containers \
+            --entrypoint /usr/libexec/bootc-base-imagectl \
+            "localhost/${IMG}:${TAG}" \
+            rechunk --max-layers 67 \
+            "localhost/${IMG}:${TAG}" \
+            "localhost/${IMG}:${TAG}-rechunked"
+          
+          # Tag the rechunked image with the original tag
+          sudo podman tag "localhost/${IMG}:${TAG}-rechunked" "localhost/${IMG}:${TAG}"
+          sudo podman rmi "localhost/${IMG}:${TAG}-rechunked"
+
+          # Load image back into rootless podman
+          sudo podman save -o "${TARBALL}" "localhost/${IMG}:${TAG}"
+          sudo chown "$(id -u):$(id -g)" "${TARBALL}"
+          podman rmi "localhost/${IMG}:${TAG}" || true
+          podman load -i "${TARBALL}"
+          sudo rm "${TARBALL}"
 
       # Tag for registry
       - name: Tag for registry
@@ -135,20 +165,6 @@ jobs:
           for tag in ${{ steps.metadata.outputs.tags }}; do
             podman tag ${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }} ${{ env.IMAGE_NAME }}${{ matrix.suffix }}:$tag
           done
-
-      - name: Rechunk Image
-        run: |
-          sudo podman run --rm --privileged \
-            -v /var/lib/containers:/var/lib/containers \
-            --entrypoint /usr/libexec/bootc-base-imagectl \
-            "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}" \
-            rechunk --max-layers 67 \
-            "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}" \
-            "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}-rechunked"
-          
-          # Tag the rechunked image with the original tag
-          sudo podman tag "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}-rechunked" "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}"
-          sudo podman rmi "${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.suffix }}:${{ env.DEFAULT_TAG }}-rechunked"
 
       # SBOM (OPTIONAL): Software Bill of Materials generation using Syft
       # Creates a detailed inventory of all software components in the image for supply chain security.
