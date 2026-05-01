@@ -24,13 +24,13 @@ done
 
 # If this file is not on the image bazaar will automatically be removed from users systems :(
 # See: https://docs.flatpak.org/en/latest/flatpak-command-reference.html#flatpak-preinstall
-test -f /usr/share/flatpak/preinstall.d/default.preinstall
+test -f /etc/flatpak/preinstall.d/default.preinstall
 
 # Basic smoke test to check if the flatpak version is from our copr
 flatpak preinstall --help
 
-# Make sure this garbage never makes it to an image
-test -f /etc/flatpak/preinstall.d/flatpak-add-fedora-repos.service && false
+# Make sure this garbage nerer makes it to an image
+test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 
 IMPORTANT_PACKAGES=(
     distrobox
