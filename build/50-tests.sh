@@ -30,7 +30,7 @@ test -f /usr/share/flatpak/preinstall.d/default.preinstall
 flatpak preinstall --help
 
 # Make sure this garbage never makes it to an image
-test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
+test -f /etc/flatpak/preinstall.d/flatpak-add-fedora-repos.service && false
 
 IMPORTANT_PACKAGES=(
     distrobox
@@ -40,7 +40,6 @@ IMPORTANT_PACKAGES=(
     systemd
     tailscale
     uupd
-    wireplumber
 )
 
 for package in "${IMPORTANT_PACKAGES[@]}"; do
