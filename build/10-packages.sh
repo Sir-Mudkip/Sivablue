@@ -135,6 +135,7 @@ EXCLUDED_PACKAGES=(
     fedora-bookmarks
     fedora-chromium-config
     fedora-chromium-config-gnome
+    fedora-logos
     firefox
     firefox-langpacks
     gnome-extensions-app
