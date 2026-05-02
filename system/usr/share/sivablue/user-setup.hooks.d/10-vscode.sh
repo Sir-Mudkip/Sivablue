@@ -22,7 +22,7 @@ EXTENSIONS=(
     redhat.vscode-yaml
     timonwong.shellcheck
     Postman.postman-for-vscode
-    fabiospampinato.vscode-monokai-night
+    GitHub.github-vscode-theme
 )
 
 for e in "${EXTENSIONS[@]}"; do
