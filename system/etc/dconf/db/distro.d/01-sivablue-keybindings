@@ -2,7 +2,7 @@
 # These cannot be set via gschema overrides
 
 [org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
-binding='<Control><Alt>Enter'
+binding='<Control><Alt>t'
 command='/usr/bin/ptyxis --new-window'
 name='Ptyxis'
 
@@ -21,7 +21,3 @@ binding='<Control><Shift>Escape'
 command='flatpak run io.missioncenter.MissionCenter'
 name='Mission Center'
 
-[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4]
-binding='<Control><Shift>t'
-command='/usr/bin/ghostty +new-window'
-name='Mission Center'
