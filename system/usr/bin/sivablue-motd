@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+# Render Sivablue's welcome MOTD. Safe to invoke manually.
+
+TEMPLATE="${SIVABLUE_MOTD_TEMPLATE:-/usr/share/sivablue/motd/welcome.md}"
+
+command -v glow >/dev/null 2>&1 || exit 0
+[ -r "$TEMPLATE" ] || exit 0
+
+if [ -t 1 ] && command -v tput >/dev/null 2>&1; then
+  cols=$(tput cols 2>/dev/null)
+  glow -w "${cols:-80}" "$TEMPLATE"
+else
+  glow "$TEMPLATE"
+fi

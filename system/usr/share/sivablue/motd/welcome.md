@@ -1,6 +1,6 @@
 #   Welcome to Sivablue!
 
-Once you have at least run the following, I recommend rebooting to ensure docker and libvirt groups work properly.
+I recommend running the following, and then rebooting to ensure you're in the Docker and Libvirt groups.
 
 |  Command             |  Description |
 |-----------------------|---------------------------------------|
