@@ -9,7 +9,4 @@ I recommend running the following, and then rebooting to ensure you're in the Do
 | `ujust pull-metasploit` | Pulls Metasploit Container|
 | `ujust pull-seclists` | Pulls Seclists to `~/toolkit`|
 | `ujust --choose`| Lists commands available |
-
-
-Hide this message with:
-`touch ~/.hushlogin`
+| `ujust toggle-welcome` | Turn this message off |

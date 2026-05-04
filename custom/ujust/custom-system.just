@@ -29,6 +29,16 @@ toggle-passwordless:
         echo "Passwordless Sudo Enabled. ENSURE YOU'RE UPDATED AND HAVE A STRONG PASSWORD"
     fi
 
+# Toggle Welcome Msg
+[group('Maintenance')]
+toggle-welcome:
+    #!/usr/bin/bash
+    if [ -f "$HOME/.hushlogin" ]; then
+        rm -f "$HOME/.hushlogin"
+    else 
+        touch "$HOME/.hushlogin"
+    fi
+
 [group('System')]
 benchmark:
     #!/usr/bin/env bash
