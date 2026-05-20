@@ -6,17 +6,20 @@ This is still in early ish development, but I'd consider it moving out of beta a
 
 I'd suggest trying this on a VM first to get a feel for things, but the goal is to be a daily driver. 
 
-## Setup:
-
-Simple setup to have things configured right away:
-
-- ujust get-dotfiles
-- ujust setup-gnome
-- ujust pull-kali
-- ujust pull-metasploit
-
-If you would prefer to not install my dotfiles, get-dotfiles is configured to allow you to pull your own. 
-
 ## Documentation:
 
 Full documentation is a work in progress. It's relatively simple however since the image is pre-configured for you. Documentation will mainly cover how to make the most out of your image. Distrobox, Distroshelf, and Podman Desktop are massive hacks if you don't know your CLI tooling that well.
+
+I recommend reading the welcome message and running those commands to get setup.
+
+## Download and Install:
+
+| Image Flavour | Download | Checksum |
+|---------------|----------|----------|
+| Standard |[Download](https://download.sivablue.uk/sivablue-stable-x86_64.iso)|[Checksum](https://download.sivablue.uk/sivablue-stable-x86_64.iso-CHECKSUM)|
+|
+| Nvidia |[Download](https://download.sivablue.uk/sivablue-nvidia-stable-x86_64.iso)|[Checksum](https://download.sivablue.uk/sivablue-nvidia-stable-x86_64.iso-CHECKSUM)|
+
+Simply follow the live install instructions, restart, and you should be good to go. The ISO build will install most of the flatpaks, but some are not installed. These will be installed in the background so please be patient in waiting for them to install.
+
+If you don't want to use the live ISOs and want to use a non-live anaconda iso, then close the [ISO repository](https://github.com/Sir-Mudkip/Sivablue-iso) and run `./hack/non-live-iso-build.sh` and pass "nvidia" if you want to build the nvidia flavour.
