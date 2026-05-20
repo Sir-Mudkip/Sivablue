@@ -17,7 +17,6 @@ I recommend reading the welcome message and running those commands to get setup.
 | Image Flavour | Download | Checksum |
 |---------------|----------|----------|
 | Standard |[Download](https://download.sivablue.uk/sivablue-stable-x86_64.iso)|[Checksum](https://download.sivablue.uk/sivablue-stable-x86_64.iso-CHECKSUM)|
-|
 | Nvidia |[Download](https://download.sivablue.uk/sivablue-nvidia-stable-x86_64.iso)|[Checksum](https://download.sivablue.uk/sivablue-nvidia-stable-x86_64.iso-CHECKSUM)|
 
 Simply follow the live install instructions, restart, and you should be good to go. The ISO build will install most of the flatpaks, but some are not installed. These will be installed in the background so please be patient in waiting for them to install.
