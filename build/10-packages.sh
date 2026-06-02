@@ -79,6 +79,7 @@ FEDORA_PACKAGES=(
     ddcutil
     edk2-ovmf
     flatpak-builder
+    fastfetch
     gcc
     git-credential-libsecret
     glow
@@ -91,7 +92,6 @@ FEDORA_PACKAGES=(
     libvirt-nss
     lm_sensors
     make
-    neofetch
     podman-compose
     podman-machine
     python3-pip
