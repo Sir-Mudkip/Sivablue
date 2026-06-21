@@ -124,29 +124,21 @@ jobs:
           command: |
             sudo -E "$(command -v just)" build "${IMAGE_NAME}" "${DEFAULT_TAG}" "${VARIANT}"
 
-      - name: Get version label
-        if: steps.detect-changes.outputs.should_build == 'true' || github.event_name != 'pull_request'
-        id: version
-        shell: bash
-        env:
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
-          DEFAULT_TAG: ${{ env.DEFAULT_TAG }}
-        run: |
-          VERSION_LABEL=$(sudo podman inspect "localhost/${IMAGE_NAME}:${DEFAULT_TAG}" \
-            --format '{{index .Config.Labels "org.opencontainers.image.version"}}')
-          echo "version=${VERSION_LABEL}" >> $GITHUB_OUTPUT
-          echo "Version: ${VERSION_LABEL}"
-
       - name: Generate tags
         if: steps.detect-changes.outputs.should_build == 'true' || github.event_name != 'pull_request'
         id: generate-tags
-        uses: projectbluefin/actions/bootc-build/generate-tags@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1
-        with:
-          base-name: ${{ env.IMAGE_NAME }}
-          stream-name: ${{ env.DEFAULT_TAG }}
-          version-label: ${{ steps.version.outputs.version }}
-          event-name: ${{ github.event_name }}
-          pr-number: ${{ github.event.number }}
+        shell: bash
+        env:
+          DEFAULT_TAG: ${{ env.DEFAULT_TAG }}
+        run: |
+          # Tagging convention: a moving "stable" tag plus an immutable, dated
+          # YYYY-MM-DD pin (UTC). Deliberately NOT using the Bluefin
+          # generate-tags action, which also emits "gts"/"daily" stream tags.
+          DATE="$(date -u +%Y-%m-%d)"
+          TAGS="${DEFAULT_TAG} ${DATE}"
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+          echo "default-tag=${DEFAULT_TAG}" >> "$GITHUB_OUTPUT"
+          echo "Tags: ${TAGS}"
 
       - name: Save DNF cache
         if: always() && !cancelled() && github.event_name != 'pull_request'
