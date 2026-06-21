@@ -28,7 +28,6 @@ echo "Enabling system services"
 systemctl enable \
     podman.socket \
     docker.socket \
-    flatpak-preinstall.service \
     dconf-update.service \
     set-hostname.service \
     tailscale-operator.service \
