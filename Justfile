@@ -205,6 +205,36 @@ tag-images $image_name="" $default_tag="" $tags="":
 
     echo "Tagged ${image_name} with: ${tags}"
 
+# cosign.pub is the same key baked into the image at /usr/lib/pki/containers/sivablue.pub
+# and enforced by /etc/containers/policy.json on client machines.
+# Verify a published image is signed with our cosign key
+[group('Image')]
+verify $target_image=image_name $tag=default_tag:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    if ! command -v cosign &>/dev/null; then
+        echo "ERROR: cosign not found. Install it: https://docs.sigstore.dev/cosign/installation/"
+        exit 1
+    fi
+    if [[ ! -f cosign.pub ]]; then
+        echo "ERROR: cosign.pub not found in repo root"
+        exit 1
+    fi
+
+    # Accept either a bare image name (e.g. "sivablue") or a fully-qualified
+    # reference (e.g. "ghcr.io/sir-mudkip/sivablue"). Only prepend the registry
+    # when the argument isn't already qualified with a registry host.
+    if [[ "${target_image}" == *.*/* || "${target_image}" == localhost/* ]]; then
+        image_ref="${target_image}:${tag}"
+    else
+        registry="ghcr.io/${IMAGE_VENDOR:-${REPO_ORG}}"
+        image_ref="${registry,,}/${target_image}:${tag}"
+    fi
+
+    echo "Verifying signature: ${image_ref}"
+    cosign verify --key cosign.pub "${image_ref}"
+
 # Command: _rootful_load_image
 # Description: This script checks if the current user is root or running under sudo. If not, it attempts to resolve the image tag using podman inspect.
 #              If the image is found, it loads it into rootful podman. If the image is not found, it pulls it from the repository.
