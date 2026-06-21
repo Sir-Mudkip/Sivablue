@@ -69,18 +69,18 @@ FEDORA_PACKAGES=(
     adw-gtk3-theme
     bash-color-prompt
     bootc
+    curl
     distrobox
-    dbus-x11
     ddcutil
-    edk2-ovmf
     flatpak-builder
     fastfetch
+    fzf
     gcc
-    git-credential-libsecret
     glow
     gnome-tweaks
     gocryptfs
     gum
+    htop
     igt-gpu-tools
     iwd
     just
@@ -91,6 +91,7 @@ FEDORA_PACKAGES=(
     openssl
     net-tools
     nvme-cli
+    nvtop
     podman-compose
     podman-machine
     python3-pip
@@ -107,9 +108,7 @@ FEDORA_PACKAGES=(
     qemu-user-binfmt
     qemu-user-static
     ripgrep
-    setools-console
     swtpm-tools
-    udica
     vagrant
     virt-manager
     virt-v2v

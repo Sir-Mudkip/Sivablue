@@ -2,8 +2,6 @@ cosign.key
 _build_*
 output
 _build-*/**
-create-iso.sh
-create-nvidia-iso.sh
 .claude/
 CLAUDE.md
 GNOME-APP-FOLDERS.md

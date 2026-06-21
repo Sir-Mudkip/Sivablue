@@ -1,0 +1,5 @@
+docker:
+  ghcr.io/sir-mudkip/sivablue:
+    use-sigstore-attachments: true
+  ghcr.io/sir-mudkip/sivablue-nvidia:
+    use-sigstore-attachments: true

@@ -23,6 +23,17 @@ if [[ "${VARIANT}" == nvidia ]]; then
     tee /usr/lib/bootc/kargs.d/00-nvidia.toml <<EOF
 kargs = ["rd.driver.blacklist=nouveau", "modprobe.blacklist=nouveau", "nvidia-drm.modeset=1", "initcall_blacklist=simpledrm_platform_driver_init"]
 EOF
+
+    # Install NVIDIA Container Toolkit for CDI-based GPU passthrough in Podman.
+    # -base variant only: ships nvidia-ctk + nvidia-cdi-hook, no libnvidia-container,
+    # no legacy OCI hook. CDI is the correct path for bootc/rootless containers.
+    curl -fsSL https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo \
+        | tee /etc/yum.repos.d/nvidia-container-toolkit.repo
+    dnf5 -y install nvidia-container-toolkit-base
+    # Configure for rootless Podman: no cgroup device delegation needed with CDI
+    nvidia-ctk config --set nvidia-container-cli.no-cgroups --in-place
+    # Remove the repo file from the final image
+    rm -f /etc/yum.repos.d/nvidia-container-toolkit.repo
 fi
 
 echo "::endgroup::"
