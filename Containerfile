@@ -35,12 +35,11 @@
 ###############################################################################
 
 # Context stage - combine local and imported OCI container resources
-ARG BASE_IMAGE="${BASE_IMAGE:-ghcr.io/ublue-os/silverblue-main:latest}"
+ARG BASE_IMAGE="${BASE_IMAGE:-quay.io/fedora-ostree-desktops/silverblue:44}"
 ARG BASE_IMAGE_NAME="silverblue"
 FROM scratch AS ctx
 
 COPY build /build
-COPY custom /custom
 COPY system /system
 
 # Copy from OCI containers to distinct subdirectories to avoid conflicts
@@ -50,14 +49,10 @@ FROM ${BASE_IMAGE} AS base
 # Make /opt immutable
 RUN rm /opt && mkdir /opt
 
-# Import nvidia akmods
-
 ### MODIFICATIONS
 ## make modifications desired in your image and install packages by modifying the build.sh script
 ## the following RUN directive does all the things required to run "build.sh" as recommended.
 
-# Copy Homebrew files from the brew image
-# And enable
 COPY --from=ghcr.io/ublue-os/brew:latest /system_files /
 RUN --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
@@ -75,11 +70,16 @@ ARG FEDORA_VERSION="${FEDORA_VERSION:-44}"
 ARG ARCHITECTURE="${ARCHITECTURE:-x86_64}"
 ARG VARIANT="base"
 
+# Set dnf options before build scripts (persists across subsequent RUN layers)
+RUN dnf5 config-manager setopt keepcache=1 install_weak_deps=0
+
 RUN --mount=type=bind,from=ctx,source=/,target=/ctx \
     --mount=type=cache,dst=/var/cache \
     --mount=type=cache,dst=/var/log \
     --mount=type=tmpfs,dst=/tmp \
-    /ctx/build/01-base-build.sh
+    /ctx/build/build.sh
+
+CMD ["/sbin/init"]
 
 ### LINTING
 ## Verify final image and contents are correct.

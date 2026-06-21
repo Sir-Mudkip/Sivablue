@@ -7,9 +7,6 @@ Requires=tailscaled.service
 Type=oneshot
 ExecStart=/usr/bin/tailscale-operator-setup
 RemainAfterExit=yes
-Restart=on-failure
-RestartSec=30
-StartLimitInterval=0
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=tailscaled.service

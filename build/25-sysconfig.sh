@@ -18,6 +18,7 @@ mask_unit \
     avahi-daemon.socket avahi-daemon.service \
     ModemManager.service \
     sssd.service sssd-kcm.service sssd-kcm.socket \
+    tailscaled.service \
     geoclue.service
 
 echo "Disabling superseded timers"
@@ -30,7 +31,6 @@ systemctl enable \
     flatpak-preinstall.service \
     dconf-update.service \
     set-hostname.service \
-    tailscaled \
     tailscale-operator.service \
     auto-groups.service \
     libvirtd \

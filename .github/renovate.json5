@@ -1,63 +1,58 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:best-practices",
-  ],
-
-  // Do not rebase when the default branch is updated
-  "rebaseWhen": "never",
-
-  customManagers: [
+  "extends": ["config:best-practices", ":enablePreCommit"],
+  "prHourlyLimit": 10,
+  "prConcurrentLimit": 20,
+  "recreateWhen": "always",
+  "rebaseWhen": "auto",
+  "customManagers": [
     {
-      customType: 'regex',
-      description: 'Match container images in Justfile with tag and digest',
-      managerFilePatterns: [
-        '^Justfile$',
+      "customType": "regex",
+      "description": "Track pinned container images in Justfile variables",
+      "managerFilePatterns": ["/^Justfile$/"],
+      "matchStrings": [
+        "export\\s+\\w+\\s+:=\\s+env\\(\"[^\"]+\",\\s+\"(?<packageName>[^\\s:@]+(?:/[^\\s:@]+)+):(?<currentValue>[^\\s@\"]+)@(?<currentDigest>sha256:[a-f0-9]+)\"\\)"
       ],
-      matchStrings: [
-        '(?<justName>.+?)\\s:=\\s(?:env\\(.+?,\\s)?["\'](?<packageName>\\S+?):(?<currentValue>\\S+?)@(?<currentDigest>sha256:[a-f0-9]+?)["\']\\)?',
-      ],
-      datasourceTemplate: 'docker',
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
     },
     {
-      customType: 'regex',
-      description: 'Match container images in Justfile run_args without tag or digest',
-      managerFilePatterns: [
-        '^Justfile$',
-      ],
-      matchStrings: [
-        'run_args\\+=\\((?<packageName>[a-zA-Z0-9._:/-]+):?(?<currentValue>\\S+?)\\)',
-      ],
-      datasourceTemplate: 'docker',
-      versioningTemplate: 'docker',
-    },
+      "customType": "regex",
+      "description": "Track pinned tool versions in workflow env vars",
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[^\\s]+) depName=(?<depName>[^\\s]+)\\n\\s+\\w+: \"(?<currentValue>[^\"]+)\""
+      ]
+    }
   ],
-
   "packageRules": [
     {
+      "description": "Automerge safe low-risk updates (digest/pin only) when checks pass",
+      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
       "automerge": true,
-      "matchUpdateTypes": ["pin", "pinDigest"]
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
     },
     {
-      "description": "Auto-merge digest updates for base image and trigger build",
+      "description": "Keep the shared projectbluefin actions channel fresh",
+      "matchPackageNames": ["projectbluefin/actions"],
+      "matchUpdateTypes": ["digest", "pinDigest", "pin", "patch", "minor"],
       "automerge": true,
-      "matchManagers": ["dockerfile"],
-      "matchUpdateTypes": ["digest"],
-      "matchFileNames": ["Containerfile"],
-      "labels": ["renovate", "automerge"],
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
     },
     {
-      "description": "Disable automerge for all rechunk updates to allow manual review",
-      "matchUpdateTypes": ["major", "minor", "patch", "digest", "pinDigest"],
-      "matchPackageNames": ["ghcr.io/hhd-dev/rechunk"],
-      "automerge": false
+      "description": "Keep first-party OCI context images fresh immediately",
+      "matchDepNames": ["ghcr.io/projectbluefin/common", "ghcr.io/ublue-os/brew"],
+      "matchUpdateTypes": ["digest", "pinDigest", "pin"],
+      "automerge": true,
+      "schedule": ["at any time"]
     },
     {
-      "description": "Enable GitHub Actions updates since they are now pinned with SHA",
-      "enabled": true,
-      "matchUpdateTypes": ["digest", "pinDigest", "pin", "major", "minor", "patch"],
-      "matchDepTypes": ["action"],
-      "matchFileNames": [".github/workflows/**.yaml", ".github/workflows/**.yml"],
-    },
+      "description": "Do not automatically cross Fedora major releases",
+      "matchDepNames": ["quay.io/fedora-ostree-desktops/silverblue"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
   ]
 }

@@ -1,5 +1,7 @@
 export image_name := env("IMAGE_NAME", "sivablue")
 export default_tag := env("DEFAULT_TAG", "stable")
+export PODMAN := env("PODMAN", "podman")
+export REPO_ORG := env("GITHUB_REPOSITORY_OWNER", "Sir-Mudkip")
 export bib_image := env("BIB_IMAGE", "quay.io/centos-bootc/bootc-image-builder:latest@sha256:903c01d110b8533f8891f07c69c0ba2377f8d4bc7e963311082b7028c04d529d")
 
 alias build-vm := build-qcow2
@@ -86,19 +88,122 @@ sudoif command *args:
 #
 
 # Build the image using the specified parameters
-build $target_image=image_name $tag=default_tag:
+# The optional third argument selects a Containerfile VARIANT (e.g. "nvidia").
+build $target_image=image_name $tag=default_tag $variant="":
     #!/usr/bin/env bash
 
+    # Read the Fedora major version from Containerfile (single source of truth).
+    # The ARG value is "${FEDORA_VERSION:-44}", so pull out the numeric default.
+    fedora_version=$(grep -E '^ARG FEDORA_VERSION=' Containerfile | head -n1 | grep -oE '[0-9]+' | tail -n1)
+    if [[ -z "${fedora_version:-}" ]]; then
+        echo "ERROR: Could not extract FEDORA_VERSION from Containerfile"
+        exit 1
+    fi
+
+    # Bluefin-style version string: <fedora-version>.<date> for stable,
+    # <tag>-<fedora-version>.<date> for everything else.
+    if [[ "${tag}" =~ stable ]]; then
+        ver="${fedora_version}.$(date +%Y%m%d)"
+    else
+        ver="${tag}-${fedora_version}.$(date +%Y%m%d)"
+    fi
+
+    # Avoid tag collisions when rebuilding on the same day
+    if command -v skopeo &>/dev/null; then
+        skopeo list-tags "docker://ghcr.io/${IMAGE_VENDOR:-${REPO_ORG}}/${target_image}" >/tmp/repotags.json 2>/dev/null \
+            || echo '{"Tags":[]}' >/tmp/repotags.json
+        if [[ $(jq "any(.Tags[]; contains(\"${ver}\"))" /tmp/repotags.json) == "true" ]]; then
+            POINT=1
+            while [[ $(jq "any(.Tags[]; contains(\"${ver}.${POINT}\"))" /tmp/repotags.json) == "true" ]]; do
+                ((POINT++))
+            done
+            ver="${ver}.${POINT}"
+            echo "Tag collision detected; using version ${ver}"
+        fi
+    fi
+
     BUILD_ARGS=()
+    BUILD_ARGS+=("--build-arg" "VERSION=${ver}")
     if [[ -z "$(git status -s)" ]]; then
         BUILD_ARGS+=("--build-arg" "SHA_HEAD_SHORT=$(git rev-parse --short HEAD)")
     fi
 
-    podman build \
+    # Image identity ARGs - these define how bootc/ublue ecosystem recognizes the image
+    # Override via env vars: IMAGE_NAME, IMAGE_VENDOR, UBLUE_IMAGE_TAG
+    BUILD_ARGS+=("--build-arg" "IMAGE_NAME=${IMAGE_NAME:-${target_image}}")
+    BUILD_ARGS+=("--build-arg" "IMAGE_VENDOR=${IMAGE_VENDOR:-${REPO_ORG}}")
+    BUILD_ARGS+=("--build-arg" "UBLUE_IMAGE_TAG=${UBLUE_IMAGE_TAG:-${tag}}")
+
+    # Select a Containerfile variant (e.g. nvidia) when requested
+    if [[ -n "${variant}" ]]; then
+        BUILD_ARGS+=("--build-arg" "VARIANT=${variant}")
+    fi
+
+    # Add GitHub token as build secret if available (for CI/CD)
+    if [[ -n "${GITHUB_TOKEN:-}" ]]; then
+        echo "Adding GitHub token as build secret"
+        BUILD_ARGS+=("--secret" "id=GITHUB_TOKEN,env=GITHUB_TOKEN")
+    fi
+
+    # Labels for ArtifactHub and OCI metadata
+    LABELS=()
+    LABELS+=("--label" "org.opencontainers.image.title=${target_image}")
+    LABELS+=("--label" "org.opencontainers.image.version=${ver}")
+    LABELS+=("--label" "org.opencontainers.image.description=${IMAGE_DESC:-My Customized Universal Blue Image}")
+    LABELS+=("--label" "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY_OWNER:-}/${target_image}/blob/${GITHUB_SHA:-}/Containerfile")
+    LABELS+=("--label" "org.opencontainers.image.url=https://github.com/${GITHUB_REPOSITORY_OWNER:-}/${target_image}")
+    LABELS+=("--label" "org.opencontainers.image.vendor=${IMAGE_VENDOR:-${REPO_ORG}}")
+    LABELS+=("--label" "org.opencontainers.image.created=$(date -u +%Y\-%m\-%d\T%H\:%M\:%S\Z)")
+    LABELS+=("--label" "io.artifacthub.package.readme-url=https://raw.githubusercontent.com/${GITHUB_REPOSITORY_OWNER:-}/${target_image}/refs/heads/master/README.md")
+    LABELS+=("--label" "io.artifacthub.package.logo-url=${IMAGE_LOGO_URL:-https://avatars.githubusercontent.com/u/120078124?s=200&v=4}")
+    LABELS+=("--label" "io.artifacthub.package.keywords=${IMAGE_KEYWORDS:-bootc,ublue,universal-blue}")
+    LABELS+=("--label" "io.artifacthub.package.license=Apache-2.0")
+    LABELS+=("--label" "io.artifacthub.package.deprecated=false")
+    LABELS+=("--label" "containers.bootc=1")
+
+    # Registry layer cache - speeds up rebuilds by reusing unchanged layers from GHCR
+    # Cache write (REGISTRY_CACHE_WRITE=1) is set by CI for non-PR builds only
+    # PR builds and local builds are read-only to prevent cache poisoning
+    CACHE_ARGS=()
+    cache_ref="ghcr.io/${IMAGE_VENDOR:-${REPO_ORG}}/${target_image}"
+    if skopeo list-tags "docker://${cache_ref}" >/dev/null 2>&1; then
+        CACHE_ARGS+=("--cache-from" "${cache_ref}")
+        if [[ "${REGISTRY_CACHE_WRITE:-0}" == "1" ]]; then
+            CACHE_ARGS+=("--cache-to" "${cache_ref}")
+        fi
+    fi
+
+    ${PODMAN} build \
         "${BUILD_ARGS[@]}" \
+        "${LABELS[@]}" \
+        "${CACHE_ARGS[@]}" \
         --pull=newer \
         --tag "${target_image}:${tag}" \
         .
+
+# Tag images with the generated alias tags
+# Bluefin pattern: separate tagging from pushing
+[group('Image')]
+tag-images $image_name="" $default_tag="" $tags="":
+    #!/usr/bin/bash
+    set -eou pipefail
+
+    if [[ -z "${image_name}" || -z "${default_tag}" || -z "${tags}" ]]; then
+        echo "Usage: just tag-images <image_name> <default_tag> <tags>"
+        exit 1
+    fi
+
+    IMAGE=$(${PODMAN} inspect "localhost/${image_name}:${default_tag}" | jq -r '.[].Id')
+    ${PODMAN} untag "localhost/${image_name}:${default_tag}"
+
+    for tag in ${tags}; do
+        ${PODMAN} tag "${IMAGE}" "${image_name}:${tag}"
+    done
+
+    # Re-apply default tag so local operations can still find it
+    ${PODMAN} tag "${IMAGE}" "${image_name}:${default_tag}"
+
+    echo "Tagged ${image_name} with: ${tags}"
 
 # Command: _rootful_load_image
 # Description: This script checks if the current user is root or running under sudo. If not, it attempts to resolve the image tag using podman inspect.

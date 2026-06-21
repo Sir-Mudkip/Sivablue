@@ -6,3 +6,7 @@
 	path = system/usr/share/gnome-shell/extensions/logomenu@aryan_k
 	url = https://github.com/ublue-os/Logomenu.git
 	branch = main
+[submodule "system/usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.github.io"]
+	path = system/usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.github.io
+	url = https://github.com/AlexanderVanhee/gradia-capture.git
+	branch = master

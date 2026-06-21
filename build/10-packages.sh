@@ -43,15 +43,6 @@ dnf -y install --enablerepo=docker-ce-stable \
     docker-compose-plugin \
     docker-model-plugin
 
-# Flatpak
-echo "Back patching of flatpak"
-dnf -y copr enable ublue-os/flatpak-test
-dnf -y copr disable ublue-os/flatpak-test
-dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak flatpak
-dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak-libs flatpak-libs
-dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test swap flatpak-session-helper flatpak-session-helper
-dnf -y --repo=copr:copr.fedorainfracloud.org:ublue-os:flatpak-test install flatpak-debuginfo flatpak-libs-debuginfo flatpak-session-helper-debuginfo
-
 echo "Installing Tailscale"
 # Enable and install tailscale
 dnf config-manager addrepo --from-repofile=https://pkgs.tailscale.com/stable/fedora/tailscale.repo
@@ -75,6 +66,10 @@ echo "Main Packages"
 
 FEDORA_PACKAGES=(
     adwaita-fonts-all
+    adw-gtk3-theme
+    bash-color-prompt
+    bootc
+    distrobox
     dbus-x11
     ddcutil
     edk2-ovmf
@@ -88,15 +83,20 @@ FEDORA_PACKAGES=(
     gum
     igt-gpu-tools
     iwd
+    just
     libvirt
     libvirt-nss
     lm_sensors
     make
+    openssl
+    net-tools
+    nvme-cli
     podman-compose
     podman-machine
     python3-pip
     p7zip
     p7zip-plugins
+    pipx
     qemu
     qemu-char-spice
     qemu-device-display-virtio-gpu
@@ -110,9 +110,12 @@ FEDORA_PACKAGES=(
     setools-console
     swtpm-tools
     udica
+    vagrant
     virt-manager
     virt-v2v
     virt-viewer
+    wireguard-tools
+    wl-clipboard
 )
 
 # Install all Fedora packages (bulk - safe from COPR injection)

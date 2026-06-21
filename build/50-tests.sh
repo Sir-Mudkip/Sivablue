@@ -18,7 +18,7 @@ BACKUP_KEY_SHA256="b723467015ba562d40b4645c98c51c65d8254bb59444f6e9962debcfe2315
 echo "${KEY1_SHA256}  ${KEY1}" | sha256sum -c -
 echo "${BACKUP_KEY_SHA256}  ${BACKUP_KEY}" | sha256sum -c -
 
-for i in bin/ujust share/ublue-os/just/{00-default.just,60-custom.just,20-clean.just,10-update.just,30-distrobox.just} ; do
+for i in bin/ujust share/sivablue/just/{apps.just,system.just,utils.just,fetch.just,utils.just,entry.just} ; do
    stat /usr/$i
 done
 

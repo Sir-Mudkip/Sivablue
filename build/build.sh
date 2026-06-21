@@ -2,15 +2,6 @@
 
 echo "::group:: Copy Custom Files"
 
-# Copy Brewfiles to standard location
-echo "Copying Brewfiles"
-mkdir -p /usr/share/sivablue/homebrew/
-cp /ctx/custom/brew/*.Brewfile /usr/share/sivablue/homebrew/
-
-# Consolidate Just Files
-echo "Consolidating Just files"
-find /ctx/custom/ujust -iname '*.just' -exec printf "\n\n" \; -exec cat {} \; >> /usr/share/ublue-os/just/60-custom.just
-
 # Mirror system tree into the image
 echo "Mirroring system tree"
 cp -rT /ctx/system/usr/ /usr/
