@@ -5,7 +5,7 @@ shell := `grep :$(id -u): /etc/passwd | cut -d: -f7`
 
 [group('Maintenance')]
 bios:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     if [ ! -d /sys/firmware/efi ]; then
       echo "Rebooting to legacy BIOS from OS is not supported."
       exit 1
@@ -17,7 +17,7 @@ bios:
 
 # Show BIOS info
 bios-info:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     sudo bash <<'EOF'
     echo "Manufacturer: $(dmidecode -s baseboard-manufacturer)"
     echo "Product Name: $(dmidecode -s baseboard-product-name)"
@@ -30,7 +30,7 @@ alias upgrade := update
 # Update system, flatpaks and homebrew packages all at once
 [group('Maintenance')]
 update:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     if systemctl cat -- uupd.timer &> /dev/null; then
         SERVICE="uupd.service"
     else
@@ -63,12 +63,12 @@ update:
 # Update system and reboot if needed
 [group('Maintenance')]
 update-and-reboot:
-    #!/usr/bin/bash                                    
-    source /usr/lib/ujust/ujust.sh                     
-    echo "Updating system..."                          
-    sudo bootc upgrade                                 
+    #!/usr/bin/env bash
+    source /usr/bin/ujust.sh
+    echo "Updating system..."
+    sudo bootc upgrade
     if gum confirm "Reboot now to apply updates?"; then
-        systemctl reboot                               
-    else                                               
-        echo "Reboot later to apply updates."          
-    fi                                               
+        systemctl reboot
+    else
+        echo "Reboot later to apply updates."
+    fi

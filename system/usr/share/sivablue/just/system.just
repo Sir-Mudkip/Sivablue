@@ -32,10 +32,10 @@ toggle-passwordless:
 # Toggle Welcome Msg
 [group('Maintenance')]
 toggle-welcome:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     if [ -f "$HOME/.hushlogin" ]; then
         rm -f "$HOME/.hushlogin"
-    else 
+    else
         touch "$HOME/.hushlogin"
     fi
 
@@ -65,7 +65,7 @@ benchmark:
 # Clean up container images and volumes
 [group('Maintenance')]
 clean-containers:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     echo "Cleaning up Podman containers, images, and volumes..."
     podman system prune -af
     podman volume prune -f
@@ -74,7 +74,7 @@ clean-containers:
 # Update system and reboot if needed
 [group('Maintenance')]
 update-and-reboot:
-    #!/usr/bin/bash
+    #!/usr/bin/env bash
     source /usr/lib/ujust/ujust.sh
     echo "Updating system..."
     sudo bootc upgrade

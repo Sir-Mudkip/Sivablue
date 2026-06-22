@@ -1,0 +1,23 @@
+# bash completion for ujust (Sivablue)
+#
+# ujust is a thin wrapper that runs `just` with a fixed --justfile, so the stock
+# dynamic `just` completion (which inspects the current directory) never sees the
+# system recipes. We instead pull recipe names straight from `ujust --summary`,
+# which keeps completions in sync with the justfiles automatically.
+
+_ujust() {
+    local cur recipes flags
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    flags="--list --summary --choose --chooser --show --dry-run --help --version"
+
+    if [[ "$cur" == -* ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "$flags" -- "$cur")
+        return
+    fi
+
+    # Space-separated, single line of recipe names from the system justfile.
+    recipes="$(ujust --summary 2>/dev/null)"
+    mapfile -t COMPREPLY < <(compgen -W "$recipes" -- "$cur")
+}
+
+complete -F _ujust ujust

@@ -14,7 +14,7 @@ get-dotfiles:
     elif [[ $OPTION == "Sir-Mudkip's" ]]; then
         git clone https://github.com/Sir-Mudkip/dotfiles $HOME/dotfiles
         echo "To install these dotfiles, simply run \`./dotfiles/install.sh\`" | glow
-    else 
+    else
         echo "Cancelling"
     fi
 
