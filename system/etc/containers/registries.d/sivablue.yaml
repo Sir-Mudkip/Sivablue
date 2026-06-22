@@ -3,3 +3,7 @@ docker:
     use-sigstore-attachments: true
   ghcr.io/sir-mudkip/sivablue-nvidia:
     use-sigstore-attachments: true
+  ghcr.io/ublue-os:
+    use-sigstore-attachments: true
+  quay.io/toolbx-images:
+    use-sigstore-attachments: true
