@@ -50,26 +50,35 @@ cat >$IMAGE_INFO <<EOF
 }
 EOF
 
-if [[ -f "${OS_RELEASE}" ]] && ! grep -q "^VARIANT_ID=" "${OS_RELEASE}"; then
+if [[ -f "${OS_RELEASE}" ]]; then
     # Version is always the build date
     OS_VERSION="${VERSION}"
 
-    # Append our identity
-    cat >>"${OS_RELEASE}" <<EOF
+    # Upsert a KEY="value" pair: replace the line in place if the key already
+    # exists (stock Fedora os-release ships most of these), else append it.
+    # Idempotent, so re-running the build layer is safe.
+    set_os_release_field() {
+        local key="$1" value="$2"
+        if grep -q "^${key}=" "${OS_RELEASE}"; then
+            sed -i "s|^${key}=.*|${key}=\"${value}\"|" "${OS_RELEASE}"
+        else
+            echo "${key}=\"${value}\"" >>"${OS_RELEASE}"
+        fi
+    }
 
-# ${IMAGE_NAME} image identity
-VARIANT_ID="${image_flavor}"
-PRETTY_NAME="${IMAGE_PRETTY_NAME}"
-NAME="${IMAGE_NAME}"
-IMAGE_ID="${IMAGE_NAME}"
-IMAGE_VERSION="${OS_VERSION}"
-ID_LIKE="${IMAGE_LIKE}"
-HOME_URL="${HOME_URL}"
-DOCUMENTATION_URL="${DOCUMENTATION_URL}"
-SUPPORT_URL="${SUPPORT_URL}"
-BUG_REPORT_URL="${BUG_REPORT_URL}"
-EOF
+    set_os_release_field "NAME"              "${IMAGE_NAME}"
+    set_os_release_field "PRETTY_NAME"       "${IMAGE_PRETTY_NAME}"
+    set_os_release_field "VARIANT"           "${IMAGE_PRETTY_NAME}"
+    set_os_release_field "VARIANT_ID"        "${image_flavor}"
+    set_os_release_field "IMAGE_ID"          "${IMAGE_REPO}"
+    set_os_release_field "IMAGE_VERSION"     "${OS_VERSION}"
+    set_os_release_field "ID_LIKE"           "${IMAGE_LIKE}"
+    set_os_release_field "HOME_URL"          "${HOME_URL}"
+    set_os_release_field "DOCUMENTATION_URL" "${DOCUMENTATION_URL}"
+    set_os_release_field "SUPPORT_URL"       "${SUPPORT_URL}"
+    set_os_release_field "BUG_REPORT_URL"    "${BUG_REPORT_URL}"
 
+    echo "Finished ${OS_RELEASE} Branding"
 fi
 
 echo "::endgroup::"
