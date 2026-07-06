@@ -67,8 +67,8 @@ if [[ -f "${OS_RELEASE}" ]]; then
     }
 
     set_os_release_field "NAME"              "${IMAGE_NAME}"
-    set_os_release_field "PRETTY_NAME"       "${IMAGE_PRETTY_NAME}"
-    set_os_release_field "VARIANT"           "${IMAGE_PRETTY_NAME}"
+    set_os_release_field "PRETTY_NAME"       "${IMAGE_PRETTY_NAME} (${VERSION})"
+    set_os_release_field "VARIANT"           "${VARIANT}"
     set_os_release_field "VARIANT_ID"        "${image_flavor}"
     set_os_release_field "IMAGE_ID"          "${IMAGE_REPO}"
     set_os_release_field "IMAGE_VERSION"     "${OS_VERSION}"
