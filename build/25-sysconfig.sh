@@ -30,7 +30,6 @@ systemctl enable \
     docker.socket \
     dconf-update.service \
     set-hostname.service \
-    tailscale-operator.service \
     auto-groups.service \
     libvirtd \
     swtpm-workaround.service \
