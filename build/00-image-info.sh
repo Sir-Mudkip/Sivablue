@@ -38,6 +38,7 @@ IMAGE_INFO="/usr/share/ublue-os/image-info.json"
 OS_RELEASE="/usr/lib/os-release"
 IMAGE_REF="ostree-image-signed:docker://ghcr.io/${IMAGE_VENDOR}/${IMAGE_REPO}"
 
+touch $IMAGE_INFO
 cat >$IMAGE_INFO <<EOF
 {
   "image-name": "$IMAGE_REPO",
