@@ -5,32 +5,42 @@ echo "::group:: ===$(basename "$0")==="
 set -euox pipefail
 
 # Constants
-IMAGE_PRETTY_NAME="Sivablue"
 IMAGE_LIKE="fedora"
 IMAGE_VENDOR="sir-mudkip"
 IMAGE_TAG="stable"
 BASE_IMAGE_NAME="silverblue"
-HOME_URL="https://github.com/Sir-Mudkip/sivablue"
-SUPPORT_URL="https://github.com/Sir-Mudkip/sivablue/issues/"
-BUG_SUPPORT_URL="https://github.com/Sir-Mudkip/sivablue/issues/"
+HOME_URL="https://github.com/Sir-Mudkip/Sivablue"
+DOCUMENTATION_URL="https://github.com/Sir-Mudkip/Sivablue"
+SUPPORT_URL="https://github.com/Sir-Mudkip/Sivablue/issues/"
+BUG_REPORT_URL="https://github.com/Sir-Mudkip/Sivablue/issues/"
+
+# Version is always the date the image was built
 VERSION="${VERSION:-$(date -u +%Y-%m-%d)}"
 
 # From Containerfile ARGs: VARIANT, FEDORA_VERSION
+FEDORA_VERSION="${FEDORA_VERSION:-}"
 
-# Derive image name from variant
-IMAGE_NAME="sivablue"
+# Derive image name and pretty name from variant.
+# IMAGE_NAME is the human-facing name; IMAGE_REPO is the lowercase registry path
+# (OCI/GHCR repository names must be lowercase).
+IMAGE_NAME="Sivablue"
+IMAGE_PRETTY_NAME="Sivablue"
+IMAGE_REPO="sivablue"
 image_flavor="main"
-if [[ "${VARIANT}" == "nvidia" ]]; then
-  IMAGE_NAME="sivablue-nvidia"
+if [[ "${VARIANT:-}" == "nvidia" ]]; then
+  IMAGE_NAME="Sivablue-nvidia"
+  IMAGE_PRETTY_NAME="Sivablue-nvidia"
+  IMAGE_REPO="sivablue-nvidia"
   image_flavor="nvidia"
 fi
 
 IMAGE_INFO="/usr/share/ublue-os/image-info.json"
-IMAGE_REF="ostree-image-signed:docker://ghcr.io/${IMAGE_VENDOR}/${IMAGE_NAME}"
+OS_RELEASE="/usr/lib/os-release"
+IMAGE_REF="ostree-image-signed:docker://ghcr.io/${IMAGE_VENDOR}/${IMAGE_REPO}"
 
 cat >$IMAGE_INFO <<EOF
 {
-  "image-name": "$IMAGE_NAME",
+  "image-name": "$IMAGE_REPO",
   "image-flavor": "$image_flavor",
   "image-vendor": "$IMAGE_VENDOR",
   "image-ref": "$IMAGE_REF",
@@ -40,26 +50,26 @@ cat >$IMAGE_INFO <<EOF
 }
 EOF
 
-# OS Release File
-sed -i "s|^VARIANT_ID=.*|VARIANT_ID=$IMAGE_NAME|" /usr/lib/os-release
-sed -i "s|^PRETTY_NAME=.*|PRETTY_NAME=\"${IMAGE_PRETTY_NAME} (Version: ${VERSION})\"|" /usr/lib/os-release
-sed -i "s|^NAME=.*|NAME=\"$IMAGE_PRETTY_NAME\"|" /usr/lib/os-release
-sed -i "s|^HOME_URL=.*|HOME_URL=\"$HOME_URL\"|" /usr/lib/os-release
-sed -i "s|^SUPPORT_URL=.*|SUPPORT_URL=\"$SUPPORT_URL\"|" /usr/lib/os-release
-sed -i "s|^BUG_REPORT_URL=.*|BUG_REPORT_URL=\"$BUG_SUPPORT_URL\"|" /usr/lib/os-release
-sed -i "s|^CPE_NAME=\"cpe:/o:fedoraproject:fedora|CPE_NAME=\"cpe:/o:universal-blue:${IMAGE_PRETTY_NAME,}|" /usr/lib/os-release
-sed -i "s|^DEFAULT_HOSTNAME=.*|DEFAULT_HOSTNAME=\"${IMAGE_PRETTY_NAME,}\"|" /usr/lib/os-release
-sed -i "/^ID=fedora/a ID_LIKE=\"${IMAGE_LIKE}\"" /usr/lib/os-release
-sed -i "/^REDHAT_BUGZILLA_PRODUCT=/d; /^REDHAT_BUGZILLA_PRODUCT_VERSION=/d; /^REDHAT_SUPPORT_PRODUCT=/d; /^REDHAT_SUPPORT_PRODUCT_VERSION=/d" /usr/lib/os-release
-sed -i "s|^VERSION=.*|VERSION=\"${VERSION} (${BASE_IMAGE_NAME^})\"|" /usr/lib/os-release
-sed -i "s|^OSTREE_VERSION=.*|OSTREE_VERSION=\'${VERSION}\'|" /usr/lib/os-release
+if [[ -f "${OS_RELEASE}" ]] && ! grep -q "^VARIANT_ID=" "${OS_RELEASE}"; then
+    # Version is always the build date
+    OS_VERSION="${VERSION}"
 
-# Added in systemd 249.
-# https://www.freedesktop.org/software/systemd/man/latest/os-release.html#IMAGE_ID=
-echo "IMAGE_ID=\"${IMAGE_NAME}\"" >> /usr/lib/os-release
-echo "IMAGE_VERSION=\"${VERSION}\"" >> /usr/lib/os-release
+    # Append our identity
+    cat >>"${OS_RELEASE}" <<EOF
 
-# Fix issues caused by ID no longer being fedora
-sed -i "s|^EFIDIR=.*|EFIDIR=\"fedora\"|" /usr/sbin/grub2-switch-to-blscfg
+# ${IMAGE_NAME} image identity
+VARIANT_ID="${image_flavor}"
+PRETTY_NAME="${IMAGE_PRETTY_NAME}"
+NAME="${IMAGE_NAME}"
+IMAGE_ID="${IMAGE_NAME}"
+IMAGE_VERSION="${OS_VERSION}"
+ID_LIKE="${IMAGE_LIKE}"
+HOME_URL="${HOME_URL}"
+DOCUMENTATION_URL="${DOCUMENTATION_URL}"
+SUPPORT_URL="${SUPPORT_URL}"
+BUG_REPORT_URL="${BUG_REPORT_URL}"
+EOF
+
+fi
 
 echo "::endgroup::"
