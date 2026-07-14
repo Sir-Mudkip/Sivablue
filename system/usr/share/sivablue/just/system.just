@@ -75,7 +75,6 @@ clean-containers:
 [group('Maintenance')]
 update-and-reboot:
     #!/usr/bin/env bash
-    source /usr/lib/ujust/ujust.sh
     echo "Updating system..."
     sudo bootc upgrade
     if gum confirm "Reboot now to apply updates?"; then
