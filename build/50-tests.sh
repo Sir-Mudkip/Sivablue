@@ -31,7 +31,9 @@ test -f /usr/share/icons/hicolor/128x128/apps/waterfox.png
 
 # fastfetch config and its SIVA logo are staged from system/, so rpm -q cannot vouch for them
 test -f /etc/fastfetch/config.jsonc
-test -f /usr/share/fastfetch/logos/sivablue.png
+# The logo is a pre-rendered coloured-braille text file printed via file-raw (no
+# image libraries involved); this is the actual asset the config renders.
+test -f /usr/share/fastfetch/logos/sivablue.txt
 
 # If this file is not on the image bazaar will automatically be removed from users systems :(
 # See: https://docs.flatpak.org/en/latest/flatpak-command-reference.html#flatpak-preinstall

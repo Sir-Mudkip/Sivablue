@@ -67,6 +67,12 @@ for size in 16 22 24 32 48 64 128 256; do
         "/usr/share/icons/hicolor/${size}x${size}/apps/waterfox.png"
 done
 
+# GTK trusts the base image's hicolor icon-theme.cache and won't rescan for icons
+# it predates, so Icon=waterfox stays invisible until the cache is rebuilt. rpm does
+# this for packaged installs; a tarball must do it by hand.
+gtk-update-icon-cache -f /usr/share/icons/hicolor
+update-desktop-database /usr/share/applications
+
 if [[ "${INSTALLED_BZIP2}" -eq 1 ]]; then
     dnf5 -y remove bzip2
 fi
