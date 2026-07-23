@@ -32,6 +32,7 @@ FEDORA_PACKAGES=(
     fastfetch
     fzf
     gcc
+    glow
     gnome-tweaks
     gocryptfs
     htop
