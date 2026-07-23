@@ -19,9 +19,7 @@ EXTENSIONS=(
     ms-vscode.PowerShell
     ms-python.python
     yzhang.markdown-all-in-one
-    redhat.vscode-yaml
     timonwong.shellcheck
-    Postman.postman-for-vscode
     GitHub.github-vscode-theme
 )
 

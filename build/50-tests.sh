@@ -22,6 +22,17 @@ for i in bin/ujust share/sivablue/just/{apps.just,system.just,utils.just,fetch.j
    stat /usr/$i
 done
 
+# Waterfox is a tarball install, so rpm -q cannot vouch for it
+test -x /usr/lib/waterfox/waterfox
+test -x /usr/bin/waterfox
+test -f /usr/share/applications/waterfox.desktop
+test -f /usr/share/icons/hicolor/128x128/apps/waterfox.png
+/usr/bin/waterfox --version
+
+# fastfetch config and its SIVA logo are staged from system/, so rpm -q cannot vouch for them
+test -f /etc/fastfetch/config.jsonc
+test -f /usr/share/fastfetch/logos/sivablue.png
+
 # If this file is not on the image bazaar will automatically be removed from users systems :(
 # See: https://docs.flatpak.org/en/latest/flatpak-command-reference.html#flatpak-preinstall
 test -f /usr/share/flatpak/preinstall.d/default.preinstall

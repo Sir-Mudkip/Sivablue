@@ -3,5 +3,4 @@ _build_*
 output
 _build-*/**
 .claude/
-CLAUDE.md
 GNOME-APP-FOLDERS.md

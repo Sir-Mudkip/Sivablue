@@ -1,0 +1,58 @@
+// Sivablue system-wide fastfetch configuration.
+//
+// Lives in /etc/fastfetch/, the system slot in `fastfetch --list-config-paths`.
+// A user's ~/.config/fastfetch/config.jsonc takes precedence and fully replaces
+// this file, so anyone who wants their own layout just drops one in.
+//
+// Two deliberate departures from the fastfetch defaults:
+//   * the SIVA logo is rendered from a PNG via chafa (works in any terminal,
+//     no kitty/sixel graphics protocol required);
+//   * the LocalIp module is omitted, so login/network addresses are never shown.
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+    "source": "/usr/share/fastfetch/logos/sivablue.png",
+    "type": "chafa",
+    "padding": {
+      "top": 1,
+      "left": 2,
+      "right": 3
+    }
+  },
+  "display": {
+    "color": {
+      "keys": "blue",
+      "title": "blue"
+    }
+  },
+  "modules": [
+    "title",
+    "separator",
+    "os",
+    "host",
+    "kernel",
+    "uptime",
+    "packages",
+    "shell",
+    "display",
+    "de",
+    "wm",
+    "wmtheme",
+    "theme",
+    "icons",
+    "font",
+    "cursor",
+    "terminal",
+    "terminalfont",
+    "cpu",
+    "gpu",
+    "memory",
+    "swap",
+    "disk",
+    "battery",
+    "poweradapter",
+    "locale",
+    "break",
+    "colors"
+  ]
+}

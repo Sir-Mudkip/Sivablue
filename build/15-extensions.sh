@@ -22,6 +22,9 @@ unzip -o /usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.gi
 rm -f /usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.github.io/gradia-integration@alexandervanhee.github.io.shell-extension.zip
 glib-compile-schemas --strict /usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.github.io/schemas
 
+# Clipboard Indicator
+glib-compile-schemas --strict /usr/share/gnome-shell/extensions/clipboard-indicator@tudmotu.com/schemas
+
 # Compile Gschemas
 rm /usr/share/glib-2.0/schemas/gschemas.compiled
 glib-compile-schemas /usr/share/glib-2.0/schemas

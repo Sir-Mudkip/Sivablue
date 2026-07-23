@@ -6,6 +6,7 @@
 ## These are simplified examples adapted from Bluefin
 # Run a system benchmark (requires stress-ng from Homebrew)
 
+# Turn on passwordless sudo
 [group('System')]
 toggle-passwordless:
     #!/usr/bin/env bash

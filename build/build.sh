@@ -17,8 +17,20 @@ echo "::group:: Building Image..."
 # Nvidia Akmods
 /ctx/build/05-kernel-akmods.sh
 
+# Install Docker
+/ctx/build/06-docker.sh
+
+# Install Tailscale
+/ctx/build/07-tailscale.sh
+
+# Install VSCode
+/ctx/build/08-vscode.sh
+
 # Install Packages
 /ctx/build/10-packages.sh
+
+# Install Waterfox
+/ctx/build/12-waterfox.sh
 
 # Install Extensions
 /ctx/build/15-extensions.sh

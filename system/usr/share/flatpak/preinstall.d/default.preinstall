@@ -4,8 +4,8 @@
 # See: https://docs.flatpak.org/en/latest/flatpak-command-reference.html#flatpak-preinstall
 
 # Web Browsers
-[Flatpak Preinstall net.waterfox.waterfox]
-Branch=stable
+# Waterfox is installed as a system binary in build/12-waterfox.sh, not as a
+# Flatpak - shipping both makes them fight over the same ~/.waterfox profile.
 
 # GNOME Core Applications
 [Flatpak Preinstall org.gnome.Calculator]
@@ -48,7 +48,7 @@ Branch=stable
 [Flatpak Preinstall com.github.PintaProject.Pinta]
 Branch=stable
 
-[Flatpak Preinstall com.github.rafostar.Clapper]
+[Flatpak Preinstall org.gnome.Showtime]
 Branch=stable
 
 # System Utilities

@@ -1,8 +1,8 @@
 #-------------- SHELL --------------#
 
 [org.gnome.shell]
-favorite-apps=['org.gnome.Ptyxis.desktop', 'net.waterfox.waterfox.desktop', 'org.gnome.Nautilus.desktop', 'io.github.kolunmi.Bazaar.desktop', 'code.desktop']
-enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'logomenu@aryan_k', 'gradia-integration@alexandervanhee.github.io']
+favorite-apps=['org.gnome.Ptyxis.desktop', 'waterfox.desktop', 'org.gnome.Nautilus.desktop', 'io.github.kolunmi.Bazaar.desktop', 'code.desktop']
+enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'logomenu@aryan_k', 'gradia-integration@alexandervanhee.github.io', 'clipboard-indicator@tudmotu.com']
 
 # Disable Super+N app switching so workspace shortcuts work
 [org.gnome.shell.keybindings]
