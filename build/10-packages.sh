@@ -35,6 +35,7 @@ FEDORA_PACKAGES=(
     glow
     gnome-tweaks
     gocryptfs
+    gum
     htop
     igt-gpu-tools
     iwd
