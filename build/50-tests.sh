@@ -85,7 +85,6 @@ fi
 
 IMPORTANT_UNITS=(
     rpm-ostree-countme.timer
-    tailscaled.service
     uupd.timer
   )
 
