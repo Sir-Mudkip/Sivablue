@@ -68,20 +68,20 @@ jobs:
 
       # These stage versions are pinned by https://github.com/renovatebot/renovate
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: recursive
 
       - name: Preflight
         id: preflight
-        uses: projectbluefin/actions/bootc-build/preflight@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1
+        uses: projectbluefin/actions/bootc-build/preflight@3f01fd8e8c186b072c21d0453f2dc66c727f9db8 # v1.1.0
         with:
           registry: ghcr.io
           github-token: ${{ secrets.GITHUB_TOKEN }}
           image-name: ${{ env.IMAGE_NAME }}
 
       - name: Setup runner
-        uses: projectbluefin/actions/bootc-build/setup-runner@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1
+        uses: projectbluefin/actions/bootc-build/setup-runner@3f01fd8e8c186b072c21d0453f2dc66c727f9db8 # v1.1.0
         with:
           storage-backend: btrfs
           update-podman: "true"
@@ -89,7 +89,7 @@ jobs:
 
       - name: Restore DNF cache
         id: dnf-cache-restore
-        uses: projectbluefin/actions/bootc-build/dnf-cache@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1
+        uses: projectbluefin/actions/bootc-build/dnf-cache@3f01fd8e8c186b072c21d0453f2dc66c727f9db8 # v1.1.0
         with:
           action: restore
           cache-name: ${{ env.IMAGE_NAME }}
@@ -97,7 +97,7 @@ jobs:
 
       - name: Detect changes
         id: detect-changes
-        uses: projectbluefin/actions/bootc-build/detect-changes@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1
+        uses: projectbluefin/actions/bootc-build/detect-changes@3f01fd8e8c186b072c21d0453f2dc66c727f9db8 # v1.1.0
         with:
           filters: |
             image:
@@ -142,7 +142,7 @@ jobs:
 
       - name: Save DNF cache
         if: always() && !cancelled() && github.event_name != 'pull_request'
-        uses: projectbluefin/actions/bootc-build/dnf-cache@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1
+        uses: projectbluefin/actions/bootc-build/dnf-cache@3f01fd8e8c186b072c21d0453f2dc66c727f9db8 # v1.1.0
         with:
           action: save
           cache-name: ${{ env.IMAGE_NAME }}
@@ -154,7 +154,7 @@ jobs:
       - name: Rechunk image
         if: github.event_name != 'pull_request'
         id: rechunk-image
-        uses: projectbluefin/actions/bootc-build/chunka@6231015b336556d2ff0adc1d1e59514bf19dcb42 # v1
+        uses: projectbluefin/actions/bootc-build/chunka@3f01fd8e8c186b072c21d0453f2dc66c727f9db8 # v1.1.0
         with:
           source-image: localhost/${{ env.IMAGE_NAME }}:${{ env.DEFAULT_TAG }}
           max-layers: 128
@@ -171,7 +171,7 @@ jobs:
 
       - name: Login to GitHub Container Registry
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -180,7 +180,7 @@ jobs:
       - name: Push to GHCR
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
         id: push
-        uses: projectbluefin/actions/bootc-build/push-image@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1
+        uses: projectbluefin/actions/bootc-build/push-image@3f01fd8e8c186b072c21d0453f2dc66c727f9db8 # v1.1.0
         with:
           image-name: ${{ env.IMAGE_NAME }}
           tags: ${{ steps.generate-tags.outputs.tags }}
@@ -192,7 +192,7 @@ jobs:
       # the two steps below. See README.md "Optional: Enable Image Signing".
       - name: Install Cosign
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
-        uses: sigstore/cosign-installer@d7543c93d881b35a8faa02e8e3605f69b7a1ce62 # v3.10.0
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
 
       - name: Sign container image
         if: github.event_name != 'pull_request' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
