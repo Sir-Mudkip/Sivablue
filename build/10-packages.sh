@@ -37,7 +37,6 @@ FEDORA_PACKAGES=(
     gocryptfs
     gum
     htop
-    igt-gpu-tools
     iwd
     just
     libvirt
@@ -45,7 +44,6 @@ FEDORA_PACKAGES=(
     lm_sensors
     make
     openssl
-    net-tools
     nvme-cli
     nvtop
     podman-compose
@@ -66,7 +64,6 @@ FEDORA_PACKAGES=(
     ripgrep
     swtpm-tools
     tmux
-    vagrant
     virt-manager
     virt-v2v
     virt-viewer
