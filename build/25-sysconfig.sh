@@ -18,11 +18,14 @@ mask_unit \
     avahi-daemon.socket avahi-daemon.service \
     ModemManager.service \
     sssd.service sssd-kcm.service sssd-kcm.socket \
-    tailscaled.service \
     geoclue.service
 
 echo "Disabling superseded timers"
 systemctl disable rpm-ostreed-automatic.timer
+
+# Tailscale is opt-in: off at boot but not masked, so it can be started on demand
+echo "Disabling opt-in daemons"
+systemctl disable tailscaled.service
 
 echo "Enabling system services"
 systemctl enable \
@@ -37,14 +40,12 @@ systemctl enable \
     flatpak-nuke-fedora.service \
     brew-setup.service \
     uupd.timer \
-    rpm-ostree-countme.timer
+    rpm-ostree-countme.timer \
+    tailscale-operator.service
 
 systemctl --global enable \
     podman-auto-update.timer \
     sivablue-user-setup.service
-
-# Prevent Distrobox containers from being updated via the background service
-sed -i 's|uupd|& --disable-module-distrobox|' /usr/lib/systemd/system/uupd.service
 
 # Load swtpm SELinux policy modules so restorecon can label /usr/bin/swtpm correctly at boot
 echo "Installing swtpm SELinux modules"
