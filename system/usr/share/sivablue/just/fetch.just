@@ -8,8 +8,8 @@
 get-dotfiles:
     #!/usr/bin/env bash
     git -C $HOME clone $DOTFILES
-	echo "[+] Install with ./dotfiles/install.sh"
-	echo "[+] This will install everything you need to get going ASAP"
+    echo '[+] Install with ./dotfiles/install.sh'
+    echo '[+] This will install everything you need to get going ASAP'
 
 # Grabs hashcat container to run hashcat (Nvidia Only)
 [group('Fetch')]
