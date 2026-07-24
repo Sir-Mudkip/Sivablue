@@ -53,6 +53,7 @@ IMPORTANT_PACKAGES=(
     systemd
     tailscale
     uupd
+    eddie-ui
 )
 
 for package in "${IMPORTANT_PACKAGES[@]}"; do

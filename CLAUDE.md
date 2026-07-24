@@ -24,10 +24,10 @@ goes in a `build/` stage.
 ## Build stages
 
 - `build/build.sh` calls each script **by name** — it does not glob. A new stage must be added there or it silently never runs.
-- Numbers set execution order and it is load-bearing. Third-party repo installs must land **before `35-clean.sh`**, which disables those repos by filename.
+- Numbers set execution order and it is load-bearing. Third-party repo installs must land **before `96-overrides.sh`**, which disables those repos by filename.
 - Reordering dnf installs can change dependency resolution. When splitting a stage out, keep its original position.
 - Stage boilerplate: `#!/usr/bin/bash`, `set -eoux pipefail`, wrapped in `echo "::group:: ===$(basename "$0")==="` / `echo "::endgroup::"`, mode `0755`.
-- `build/50-tests.sh` is the build's own gate — add a check there for anything `rpm -q` cannot verify (tarball installs, files staged from `system/`).
+- `build/99-tests.sh` is the build's own gate — add a check there for anything `rpm -q` cannot verify (tarball installs, files staged from `system/`).
 
 ## Installing software
 
@@ -63,7 +63,7 @@ service that iterates the directory — no registration needed).
 
 ## ujust
 
-User-facing commands live in `system/usr/share/sivablue/just/*.just`. `build/50-tests.sh` stats these
+User-facing commands live in `system/usr/share/sivablue/just/*.just`. `build/99-tests.sh` stats these
 files, so renaming one breaks the build.
 
 ## Validation

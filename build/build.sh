@@ -32,11 +32,14 @@ echo "::group:: Building Image..."
 # Install Waterfox
 /ctx/build/12-waterfox.sh
 
+# Install AirVPN Eddie
+/ctx/build/13-eddie.sh
+
 # Install Extensions
 /ctx/build/15-extensions.sh
 
-# Overrides
-/ctx/build/20-overrides-install.sh
+# Content Cleanup
+/ctx/build/20-content-cleanup.sh
 
 # System Config
 /ctx/build/25-sysconfig.sh
@@ -44,17 +47,17 @@ echo "::group:: Building Image..."
 # Initramfs Regeneration
 /ctx/build/30-initramfs.sh
 
-# Clean Scripts
-/ctx/build/35-clean.sh
+# Overrides
+/ctx/build/96-overrides.sh
 
 # Validate Repos
-/ctx/build/40-validate-repos.sh
+/ctx/build/97-validate-repos.sh
 
 # Clean Stage
-/ctx/build/45-clean-stage.sh
+/ctx/build/98-clean-stage.sh
 
 # Tests
-/ctx/build/50-tests.sh
+/ctx/build/99-tests.sh
 
 echo "::endgroup::"
 
