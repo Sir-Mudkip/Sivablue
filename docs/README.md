@@ -1,8 +1,8 @@
 # Sivablue documentation
 
 This documents how the image is built and why, for maintainers. End users
-want the root [`README.md`](../README.md), the welcome message shown on
-first terminal login, and `ujust --choose`.
+want the root [`README.md`](../README.md), the welcome message shown at
+every login, and `ujust --choose`.
 
 ## Pages
 
