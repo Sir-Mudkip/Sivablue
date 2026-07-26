@@ -17,7 +17,7 @@ the image with `cp -rT`. They therefore ship to every installed machine. The uju
 README alone puts 241 lines of instructions for a non-existent directory layout
 onto users' systems at `/usr/share/sivablue/just/README.md`.
 
-Meanwhile the things a maintainer most needs — what each of the 17 build stages
+Meanwhile the things a maintainer most needs — what each of the 16 build stages
 does, why stage ordering is load-bearing, why tarballs go to `/usr/lib` rather than
 `/opt` — are written down nowhere. They exist only in the scripts.
 
@@ -76,7 +76,7 @@ machinery than the project warrants.
 | Page | Contents | Sourced from |
 |---|---|---|
 | `README.md` | Index, and the rule for which page to update for a given change | new |
-| `build-stages.md` | The `cp -rT` mirror step, then all 17 stages in execution order: what each does and why it sits at that number. The two ordering constraints. Stage boilerplate. The `dnf5` reasoning. The `ghcurl` token line below. | `build/*.sh`, `CLAUDE.md` |
+| `build-stages.md` | The `cp -rT` mirror step, then all 16 stages in execution order: what each does and why it sits at that number. The two ordering constraints. Stage boilerplate. The `dnf5` reasoning. The `ghcurl` token line below. | `build/*.sh`, `CLAUDE.md` |
 | `filesystem-layout.md` | `system/` to image mirroring; `/usr` read-only at runtime so bundled self-updaters must be disabled; `/usr/lib` not `/opt` because the `Containerfile` does `rm /opt && mkdir /opt`; `/etc` versus `/usr/share`; static assets, including the fastfetch logo rationale and its regeneration recipe | `CLAUDE.md`, `system/usr/share/fastfetch/README.md` |
 | `settings.md` | `gschema.override` versus `dconf/db/distro.d`: why relocatable schemas force the latter, and why choosing wrong fails silently | `CLAUDE.md` |
 | `extensions.md` | Submodules, recursive CI checkout, `15-extensions.sh` build steps, `enabled-extensions`, the `shell-version` check | `CLAUDE.md` |
@@ -187,6 +187,6 @@ Two checks specific to this work:
 |---|---|
 | Removing READMEs from `system/` changes shipped image contents | Nothing reads them; the two functional Markdown files are explicitly untouched |
 | A shorter `CLAUDE.md` costs agents inline rationale | Every rule stays verbatim; explicit `docs/` pointers are added |
-| `build-stages.md` is newly written and could misdescribe intent | Written by reading each of the 17 scripts and cross-checked against `build.sh` ordering |
+| `build-stages.md` is newly written and could misdescribe intent | Written by reading each of the 16 scripts and cross-checked against `build.sh` ordering |
 | Workflow edits | Single-line strings only, in a comment and an `echo` |
 | `docs/` drifts as stages are added | Accepted. The revised convention mandates updates; no automated check by decision |

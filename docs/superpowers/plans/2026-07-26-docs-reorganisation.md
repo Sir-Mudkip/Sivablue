@@ -68,7 +68,7 @@ The largest new page, and the one nothing in the repository currently records.
 **Files:**
 - Create: `docs/build-stages.md`
 - Delete: `build/README.md`
-- Read for source: `build/build.sh`, `build/*.sh` (all 17 stages), `build/copr-helpers.sh`, `build/ghcurl`
+- Read for source: `build/build.sh`, `build/*.sh` (all 16 stages), `build/copr-helpers.sh`, `build/ghcurl`
 
 **Interfaces:**
 - Produces: `docs/build-stages.md`, linked from `docs/README.md` (Task 7) and `CLAUDE.md` (Task 8).
@@ -83,7 +83,7 @@ for f in build/[0-9]*.sh; do
 done
 ```
 
-Expected now: 17 `UNDOCUMENTED:` lines (the file does not exist yet).
+Expected now: 16 `UNDOCUMENTED:` lines (the file does not exist yet).
 
 - [ ] **Step 2: Write `docs/build-stages.md`**
 
@@ -171,7 +171,7 @@ git add docs/build-stages.md
 git commit -m "$(cat <<'EOF'
 docs: document every build stage in docs/build-stages.md
 
-Records what each of the 17 stages does and why its position is
+Records what each of the 16 stages does and why its position is
 load-bearing, plus the ghcurl token permissions, which were previously
 written down nowhere. Deletes build/README.md, which described the
 upstream template layout (10-build.sh, .example scripts) that does not
