@@ -71,7 +71,7 @@ Where files go in the image and why: [`docs/filesystem-layout.md`](docs/filesyst
 - Enable by adding the UUID to `enabled-extensions` in `system/usr/share/glib-2.0/schemas/zz0-sivablue-mods.gschema.override`.
 - Check `metadata.json` `shell-version` covers the base image's GNOME release.
 
-Vendoring, building and updating an extension: [`docs/extensions.md`](docs/extensions.md).
+Vendoring, building and enabling an extension: [`docs/extensions.md`](docs/extensions.md).
 
 ## Settings: two mechanisms, not interchangeable
 
