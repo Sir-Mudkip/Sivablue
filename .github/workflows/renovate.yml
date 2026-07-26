@@ -33,7 +33,7 @@ jobs:
         run: |
           if [[ -z "${TOKEN}" ]]; then
             echo "RENOVATE_TOKEN secret not configured — skipping Renovate."
-            echo "See .github/SETUP_CHECKLIST.md to set up the token."
+            echo "See docs/ci.md to set up the token."
             echo "configured=false" >> "$GITHUB_OUTPUT"
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
