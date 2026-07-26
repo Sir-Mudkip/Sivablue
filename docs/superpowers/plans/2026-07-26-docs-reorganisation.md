@@ -883,10 +883,12 @@ Nothing new is written here. This task proves the whole change is sound.
 - [ ] **Step 1: Confirm no build script was edited**
 
 ```bash
-git diff --stat master~9 -- build/ Justfile
+git diff --stat faecf6f..HEAD -- build/ Justfile
 ```
 
-Expected: only `build/README.md` shown as deleted. Any other `build/` file appearing is a plan violation — stop and investigate.
+`faecf6f` is the plan commit — the base this work started from. Expected: only
+`build/README.md` shown as deleted. Any other `build/` file appearing is a plan
+violation — stop and investigate.
 
 - [ ] **Step 2: Confirm every deleted path is unreferenced**
 
