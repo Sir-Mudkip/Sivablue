@@ -1,8 +1,10 @@
-# Copilot Instructions for finpilot
+# Copilot Instructions for Sivablue
 
 This repository uses comprehensive agent instructions. Please refer to the main documentation file:
 
 **[AGENTS.md](../AGENTS.md)** in the repository root.
+
+Build documentation lives under [`docs/`](../docs/README.md).
 
 This file contains:
 - Repository structure and organization

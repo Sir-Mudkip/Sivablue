@@ -12,6 +12,8 @@ Full documentation is a work in progress. It's relatively simple however since t
 
 I recommend reading the welcome message when first opening the terminal and running those commands to get setup.
 
+See [`docs/README.md`](docs/README.md) for build and design documentation.
+
 ## Download and Install:
 
 | Image Flavour | Download | Checksum |
