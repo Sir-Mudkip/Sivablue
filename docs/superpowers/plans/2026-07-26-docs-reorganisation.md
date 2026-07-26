@@ -915,7 +915,7 @@ Expected: no output from `git status` (both unmodified), and `fetch.just:20` sti
 - [ ] **Step 4: Confirm every cross-link in `docs/` resolves**
 
 ```bash
-grep -rho '](\.\?/\?[a-z0-9./-]*\.md)' docs/*.md | tr -d '](' | sort -u | while read -r p; do
+grep -rho '](\.\{0,2\}/\?[A-Za-z0-9./-]*\.md)' docs/*.md | sed 's/^](//; s/)$//' | sort -u | while read -r p; do
   case "$p" in
     /*) target="${p#/}" ;;
     ./*) target="docs/${p#./}" ;;
