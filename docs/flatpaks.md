@@ -50,18 +50,23 @@ IsRuntime=true
 
 ## Installation timing
 
-Flatpaks are **not** in the ISO or the container image. They download on
-first boot, after user setup completes and a network connection exists.
+Flatpaks are **not** baked into the container image. `default.preinstall`
+is a declaration, not a bundle: nothing in `build/` downloads a Flatpak, so
+what ships is the list, and Flatpak acts on it on the installed system.
 
 Consequences:
 
-- The ISO stays small and bootable offline.
-- Users need an internet connection afterwards for these applications to
-  appear.
-- First boot takes longer while Flatpaks download.
+- The applications need a network connection to appear.
+- A first boot that has to fetch them takes longer, and any that are
+  missing arrive in the background rather than at login.
 
-This is not an offline ISO with pre-embedded applications — treat
-`default.preinstall` as a wish list handed to Flatpak, not a bundle.
+Whether a given installation media pre-seeds some of them is out of scope
+here. The installer ISOs are built in a separate repository
+([`Sivablue-iso`](https://github.com/Sir-Mudkip/Sivablue-iso), linked from
+the root `README.md`), so nothing in this tree can substantiate a claim
+about what an ISO does or does not carry. Treat `default.preinstall` as
+this repository's contribution — the list — and check the ISO repository
+for anything about media contents.
 
 ## Remotes
 

@@ -8,16 +8,29 @@ build stage **by name**. It does not glob. A new stage that is not added to
 ## Ordering
 
 - Third-party repository installs must land **before `96-overrides.sh`**,
-  which disables those repositories by filename (`build/96-overrides.sh:26-31`).
+  which disables those repositories by filename (`build/96-overrides.sh:24-29`).
 - Reordering `dnf5` installs can change dependency resolution, so when
   splitting a stage out, keep its original position.
 
 ## Stage boilerplate
 
-Every stage is `#!/usr/bin/bash`, `set -eoux pipefail`, wrapped in
-`echo "::group:: ===$(basename "$0")==="` / `echo "::endgroup::"`, mode
-`0755`. The `::group::` markers fold the stage's output in GitHub Actions
-logs.
+A new stage should use `#!/usr/bin/bash`, `set -eoux pipefail`, wrap its
+body in `echo "::group:: ===$(basename "$0")==="` / `echo "::endgroup::"`,
+and be mode `0755`. The `::group::` markers fold the stage's output in
+GitHub Actions logs.
+
+That is the prescription, not a description — the existing stages have
+drifted from it and no check enforces it:
+
+- `97-validate-repos.sh` uses `set -eou pipefail` and `30-initramfs.sh`
+  uses `set -oue pipefail`; both omit `-x`, so their commands are not
+  echoed into the build log.
+- `00-image-info.sh` and `05-kernel-akmods.sh` write `set -euox pipefail`
+  — the same flags in a different order.
+- `25-sysconfig.sh` marks its group with `==` rather than `===`.
+
+None of that is worth a churn commit on its own, but do not copy an
+arbitrary existing stage and assume it is the house style.
 
 ## The stages
 
@@ -121,7 +134,10 @@ Service state. Masks cups/avahi/ModemManager/sssd/geoclue. Disables
 mask `tailscaled.service`** — Tailscale is opt-in, so it must remain
 startable on demand. Enables system units and, via `systemctl --global`, the
 per-user `sivablue-user-setup.service`. Installs swtpm SELinux policy modules
-so `restorecon` can label `/usr/bin/swtpm` at boot.
+so `restorecon` can label `/usr/bin/swtpm` at boot. Seven of the units it
+enables ship from `system/usr/lib/systemd/system/` rather than from a
+package — `filesystem-layout.md` has a line on what each of them, and each
+helper binary in `system/usr/bin/`, actually does.
 
 ### `30-initramfs.sh`
 

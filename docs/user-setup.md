@@ -52,7 +52,11 @@ assumption that this is the first run.
 `sivablue-user-setup` runs each hook with a plain `bash $script` and never
 checks its exit status, so a failing hook fails silently and the loop moves
 on to the next one regardless. The hooks directory itself is overridable
-via the `user-hooks-directory` key in `/etc/sivablue/setup.json`.
+via the `user-hooks-directory` key in `/etc/sivablue/setup.json` — a file
+this image does not ship (there is no `system/etc/sivablue/`), so the
+override only takes effect if an administrator creates it; otherwise
+`sivablue-user-setup` falls back to the built-in
+`/usr/share/sivablue/user-setup.hooks.d`.
 
 To make an already-shipped hook run again for existing users (for example
 because its logic changed), bump `<n>`. A new version number that nobody

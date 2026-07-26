@@ -46,15 +46,30 @@ The `[group('…')]` attribute controls how `ujust --list` sections the
 recipe. Multi-line recipes need their own shebang line — this repository
 uses `#!/usr/bin/env bash` throughout the existing `.just` files.
 
-`source /usr/lib/ujust/ujust.sh` provides `Choose()` and `Confirm()` helper
-functions for interactive prompts, though no recipe here currently uses
-them. `gum` is also available directly — `system.just` sources `ujust.sh`
-and calls `gum confirm` directly for interactive confirmation.
+`ujust.sh` provides `Choose()` and `Confirm()` helper functions for
+interactive prompts, though no recipe here currently uses them. `gum` is
+also available directly — `system.just` sources `ujust.sh` and calls
+`gum confirm` directly for interactive confirmation.
+
+The existing recipes do not agree on where `ujust.sh` is:
+`system.just:13,46` source `/usr/lib/ujust/ujust.sh`, while
+`utils.just:67` sources `/usr/bin/ujust.sh`. Both paths come from the base
+image, not from this repository, so neither is verifiable here. If you add
+a recipe that needs the helpers, copy the `system.just` form and test it on
+a booted image rather than assuming either path resolves.
 
 ## Naming
 
-Recipe names use a verb prefix that says what the recipe does:
-`install-`, `configure-`, `setup-`, `toggle-`, `fix-`.
+Where a recipe takes a verb prefix, it says what the recipe does. The
+prefixes actually in use are `install-` (`install-flatpak`,
+`install-vscodium`), `setup-` (`setup-gnome`), `toggle-`
+(`toggle-passwordless`, `toggle-welcome`), `pull-` (`pull-hashcat`),
+`get-` (`get-dotfiles`) and `clean-` (`clean-containers`).
+
+Not every recipe follows the pattern, and that is fine: `benchmark`,
+`bios`, `bios-info`, `update` and `update-and-reboot` carry no verb prefix
+at all. Match the nearest existing recipe rather than inventing a prefix —
+a plain noun or bare verb is established here.
 
 ## Do not install packages in a recipe
 
