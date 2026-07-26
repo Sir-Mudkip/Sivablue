@@ -850,10 +850,12 @@ Change the title `# Copilot Instructions for finpilot` to `# Copilot Instruction
 - [ ] **Step 6: Verify no `finpilot` reference survives anywhere**
 
 ```bash
-grep -rn 'finpilot' . --exclude-dir=.git || echo "no finpilot references — clean"
+grep -rn 'finpilot' . --exclude-dir=.git --exclude-dir=superpowers || echo "no finpilot references — clean"
 ```
 
-Expected: `no finpilot references — clean`.
+Expected: `no finpilot references — clean`. `docs/superpowers/` is excluded because
+the spec and this plan quote "finpilot" while describing the work; those hits are
+expected and correct.
 
 - [ ] **Step 7: Commit**
 
