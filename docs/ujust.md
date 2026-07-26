@@ -47,9 +47,9 @@ recipe. Multi-line recipes need their own shebang line — this repository
 uses `#!/usr/bin/env bash` throughout the existing `.just` files.
 
 `source /usr/lib/ujust/ujust.sh` provides `Choose()` and `Confirm()` helper
-functions for interactive prompts. `gum` is also available directly for
-confirmations, spinners, and similar prompts — see `system.just` and
-`fetch.just` for examples of both.
+functions for interactive prompts, though no recipe here currently uses
+them. `gum` is also available directly — `system.just` sources `ujust.sh`
+and calls `gum confirm` directly for interactive confirmation.
 
 ## Naming
 
