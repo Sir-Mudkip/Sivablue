@@ -28,8 +28,9 @@ version-script <name> user <n> || exit 0
 
 `<name>` is a versioning tag (keep it stable across edits) and `<n>` is
 the version number. Anything after this line is the hook body — it only
-runs when `<n>` is higher than the version already recorded for
-`<name>`.
+runs when the version already recorded for `<name>` does not equal `<n>`.
+There is no ordering check: setting `<n>` to a lower number than what is
+already recorded also makes the hook run again.
 
 ## Versioning semantics
 
@@ -47,6 +48,11 @@ The consequence is that a hook which fails partway through is **never retried**
 why hooks must be defensive and non-destructive: guard every step against a
 partially-applied previous run, and never clobber existing user data on the
 assumption that this is the first run.
+
+`sivablue-user-setup` runs each hook with a plain `bash $script` and never
+checks its exit status, so a failing hook fails silently and the loop moves
+on to the next one regardless. The hooks directory itself is overridable
+via the `user-hooks-directory` key in `/etc/sivablue/setup.json`.
 
 To make an already-shipped hook run again for existing users (for example
 because its logic changed), bump `<n>`. A new version number that nobody
