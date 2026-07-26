@@ -19,6 +19,7 @@ A bootc image built on Fedora Silverblue's atomic bootc base (`quay.io/fedora-os
 | `build/copr-helpers.sh` | `copr_install_isolated` helper |
 | `build/ghcurl` | `curl` wrapper that picks up `GITHUB_TOKEN` from `/run/secrets` |
 | `system/` | Mirrored into the image verbatim (`cp -rT` in `build.sh`) — `system/usr/…` → `/usr/…` |
+| `docs/` | Maintainer documentation — the *why* behind these rules. Not mirrored into the image |
 
 Anything static goes in `system/`; anything that needs to run (downloads, compiles, package installs)
 goes in a `build/` stage.
@@ -60,7 +61,7 @@ Full stage-by-stage detail: [`docs/build-stages.md`](docs/build-stages.md).
 - **COPR** — `copr_install_isolated "owner/project" pkg…` after sourcing `copr-helpers.sh`.
 - **Flatpak** — add a `[Flatpak Preinstall <id>]` block to `system/usr/share/flatpak/preinstall.d/default.preinstall`. That file must exist in the image or Bazaar is uninstalled from users' systems.
 - **Tarball** — install under `/usr/lib/<name>` and symlink into `/usr/bin`. **Not `/opt`**. See `build/12-waterfox.sh`.
-- `/usr` is read-only at runtime, so bundled self-updaters cannot work — disable them. Updates arrive via image rebuild + `bootc upgrade`, so "latest" means latest *at build time*.
+- `/usr` is read-only at runtime, so bundled self-updaters cannot work — disable them (Firefox-family: a `distribution/policies.json` with `DisableAppUpdate`). Updates arrive via image rebuild + `bootc upgrade`, so "latest" means latest *at build time*.
 
 Where files go in the image and why: [`docs/filesystem-layout.md`](docs/filesystem-layout.md).
 

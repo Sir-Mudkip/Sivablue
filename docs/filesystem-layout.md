@@ -21,7 +21,11 @@ for byte. There is no filtering step.
 Consequence: every file placed under `system/` ships to every installed
 machine. That is why no explanatory README lives there — documentation
 belongs in `docs/`, which is not mirrored into the image and never reaches
-an installed system.
+an installed system. Two Markdown files under `system/` are nonetheless
+functional, not documentation, and must not be tidied away:
+`system/etc/misc.d/hashcat-install.md` (rendered by `glow` from
+`fetch.just:20` at the end of `ujust pull-hashcat`) and
+`system/usr/share/sivablue/motd/welcome.md` (the MOTD body, below).
 
 ## `/usr` is read-only at runtime
 
@@ -63,6 +67,46 @@ Concrete examples from this image:
 - The flatpak preinstall file lives at
   `/usr/share/flatpak/preinstall.d/` (see `flatpaks.md`) — it is vendor
   data, not something an administrator is expected to hand-edit.
+
+## Units and helper binaries shipped from `system/`
+
+These are the image's own units and scripts, as opposed to the packaged
+ones (`podman.socket`, `docker.socket`, `libvirtd`, `brew-setup.service`,
+`uupd.timer`, `rpm-ostree-countme.timer`) that `build/25-sysconfig.sh`
+enables alongside them. All seven units are enabled there; see
+`build-stages.md`.
+
+`system/usr/lib/systemd/system/`:
+
+| Unit | Does |
+|---|---|
+| `auto-groups.service` | Oneshot on `default.target` running `/usr/bin/auto-groups`; `Restart=on-failure` every 30s with no start limit, so it retries until a wheel user exists. |
+| `dconf-update.service` | Runs `dconf update` at boot, compiling `/etc/dconf/db/distro.d/` into the binary database clients read (see `settings.md`). |
+| `flatpak-nuke-fedora.service` | Deletes the `fedora` and `fedora-testing` Flatpak remotes and touches `/var/lib/flatpak/.fedora-initialized`; ordered before `flatpak-preinstall.service` so preinstalls resolve against Flathub. |
+| `libvirt-workaround.service` | `restorecon -R` over `/var/log/libvirt/` and `/var/lib/libvirt/` to repair SELinux labels; both `ExecStart=` lines are `-`-prefixed, so failures do not fail the unit. |
+| `set-hostname.service` | Sets the hostname to `Sivablue` on first boot only, guarded by `ConditionPathExists=!/etc/.hostname-set` and a matching `ExecStartPost` touch. |
+| `swtpm-workaround.service` | Copies `/usr/bin/swtpm` into `/usr/local/bin/overrides` and bind-mounts it back over itself so `restorecon` can label it — `/usr` is read-only, so it cannot be relabelled in place. |
+| `tailscale-operator.service` | `WantedBy=tailscaled.service`; runs `tailscale-operator-setup` once Tailscale is up. |
+
+`system/usr/bin/`:
+
+| Binary | Does |
+|---|---|
+| `auto-groups` | Appends the `docker` and `libvirt` groups from `/usr/lib/group` to `/etc/group`, then adds every wheel member to both; exits 1 when wheel is still empty so the unit retries. Version-stamped in `/etc/sivablue/auto-groups`. |
+| `sivablue-motd` | Renders the MOTD with `glow`, wrapped to `tput cols` when on a terminal; silently exits if `glow` or the template is missing. |
+| `sivablue-user-setup` | Runs every hook in the user hooks directory; see `user-setup.md`. |
+| `tailscale-operator-setup` | Sets the Tailscale operator to the first wheel user, so `tailscale` works without `sudo`. Version-stamped in `/etc/sivablue/tailscale-operator`. |
+| `ujust` | One-line wrapper: `just --justfile /usr/share/sivablue/just/entry.just "$@"`. See `ujust.md`. |
+
+### The MOTD path
+
+`system/etc/profile.d/welcome.sh` runs on every interactive login shell. It
+returns immediately for non-interactive shells, for a non-tty stdout, or if
+`~/.hushlogin` exists; otherwise it calls `sivablue-motd`, which renders
+`/usr/share/sivablue/motd/welcome.md`. `ujust toggle-welcome`
+(`system.just:35`) is the user-facing switch — it creates or removes
+`~/.hushlogin`. Editing the welcome text means editing that Markdown file;
+nothing generates it.
 
 ## Static assets
 
