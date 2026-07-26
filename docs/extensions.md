@@ -45,18 +45,27 @@ Per extension:
   — no separate build step runs.
 
 At the end of the stage, `/usr/share/glib-2.0/schemas/gschemas.compiled` is
-removed and `glib-compile-schemas` is rerun over the whole directory, so the
-per-extension schemas and `zz0-sivablue-mods.gschema.override` are compiled
-together. `build/20-content-cleanup.sh` repeats that whole-directory
-recompile later in the build, after cleanup steps that also touch the
-schema directory.
+removed and `glib-compile-schemas` is rerun over that directory. This is a
+*separate* compile, not a combined one: each extension's schemas were
+already compiled in its own `schemas/` directory and stay there, while
+`/usr/share/glib-2.0/schemas/` holds the base image's schemas plus
+`zz0-sivablue-mods.gschema.override`. The two sets never meet, which is why
+the override file cannot set an extension's defaults — see `settings.md`.
+`build/20-content-cleanup.sh` repeats the whole-directory recompile later in
+the build, after cleanup steps that also touch that directory.
 
 ## Enabling
 
 An extension is enabled by adding its UUID to `enabled-extensions` in
-`system/usr/share/glib-2.0/schemas/zz0-sivablue-mods.gschema.override`. See
-`settings.md` for why this file, specifically, is the right place, and what
-happens if a setting for the extension needs the dconf database instead.
+`system/usr/share/glib-2.0/schemas/zz0-sivablue-mods.gschema.override`. That
+key belongs to `org.gnome.shell`, whose schema the base image installs
+centrally, so the override reaches it.
+
+The extension's *own* settings are a different matter: they belong in
+`system/etc/dconf/db/distro.d/`, because a vendored extension's schema
+never lands in `/usr/share/glib-2.0/schemas/` for an override to attach to.
+See `settings.md`, which uses this repository's own override file as the
+worked example of that failing silently.
 
 ## Adding one
 
