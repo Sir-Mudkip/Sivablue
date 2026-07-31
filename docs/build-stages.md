@@ -104,6 +104,45 @@ read-only at runtime. Promotes bundled icons into hicolor and runs
 and will not rescan for icons it predates — rpm does this for packaged
 installs, a tarball must do it by hand.
 
+The stage then installs H.264 codec support. This lives here, rather than in
+`10-packages.sh`, because Waterfox is the reason the image needs it.
+
+Waterfox ships `libmozavcodec.so`, a stripped ffmpeg covering VP8, VP9, AV1,
+Opus, Vorbis and FLAC. H.264 (`avc1`) and AAC are deliberately absent from it
+and are loaded from the system ffmpeg instead, which Waterfox finds by
+`dlopen`ing `libavcodec.so.<53–62>`. Stock Fedora cannot satisfy that:
+`libavcodec-free` is built without the patented native H.264 decoder and
+exposes only a `libopenh264` wrapper, and the soname that wrapper needs is
+provided by `noopenh264` — an 11 KB stub whose `WelsCreateDecoder()` always
+returns error 3. Every layer resolves cleanly and no error is printed, so the
+symptom is that `av01` YouTube plays while `avc1` does not, and DRM sites such
+as Pluralsight fail *after* Widevine has successfully decrypted the stream.
+This is invisible under a Flatpak build of the browser, which gets a complete
+ffmpeg from the `org.freedesktop.Platform.ffmpeg-full` runtime extension.
+
+Two packages are needed because they fix different halves:
+
+- `openh264` (and `mozilla-openh264` for WebRTC) from `fedora-cisco-openh264`,
+  a repo already present in the base image but disabled. It `Obsoletes:
+  noopenh264 < 1:0`, so it displaces the stub cleanly. This also repairs
+  `libheif` and `freerdp-libs`, which link the same stub.
+- `libavcodec-freeworld` from RPM Fusion free. `openh264` alone would give
+  software-only decoding, because the `libopenh264` wrapper exposes no
+  hwaccel. `libavcodec-freeworld` installs a full libavcodec to
+  `/usr/lib64/ffmpeg` with an `/etc/ld.so.conf.d` drop-in that shadows
+  `libavcodec-free` at `dlopen` time, restoring the native H.264 decoder —
+  the only one carrying VA-API/VDPAU/CUDA hwaccel — plus HEVC. `ldconfig` is
+  run explicitly afterwards because that cache is what decides which of the
+  two libraries wins.
+
+The RPM Fusion release package is installed with `--nogpgcheck` because it is
+the package that *ships* the key everything after it is verified against;
+`libavcodec-freeworld` itself is then signature-checked normally. Its repos
+are disabled immediately after being added, per the usual pattern, and
+`96-overrides.sh` already globs `rpmfusion-*.repo` as a second line of
+defence. Note the codec install must stay ahead of `96-overrides.sh` for that
+reason.
+
 ### `13-eddie.sh`
 
 Same `ghcurl` + version-validation pattern, but installs a standalone RPM
@@ -173,7 +212,9 @@ a published image cannot pull `ghcr.io/ublue-os/*` and therefore cannot
 update), stats the `ujust` binary and each `.just` file, checks the Waterfox
 tarball install, the fastfetch config and logo, and `default.preinstall`.
 Asserts required packages are present, unwanted ones absent, and required
-timers enabled. **Add a check here for anything `rpm -q` cannot verify** —
+timers enabled. It also asserts a decoder named exactly `h264` appears in
+`ffmpeg -decoders`: `rpm -q` cannot distinguish a working codec from the
+`noopenh264` stub, since both satisfy the same soname (see `12-waterfox.sh`). **Add a check here for anything `rpm -q` cannot verify** —
 tarball installs and files staged from `system/`.
 
 ## COPR installs

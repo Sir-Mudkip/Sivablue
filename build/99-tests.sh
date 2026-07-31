@@ -29,6 +29,14 @@ test -f /usr/share/applications/waterfox.desktop
 test -f /usr/share/icons/hicolor/128x128/apps/waterfox.png
 /usr/bin/waterfox --version
 
+# Waterfox decodes avc1 through the system ffmpeg, and rpm -q cannot tell a real
+# decoder from the noopenh264 stub that satisfies the same soname. Assert the
+# native h264 decoder actually resolves, or avc1 video silently fails to play.
+test -s /usr/lib64/ffmpeg/libavcodec.so.62
+if ! ffmpeg -hide_banner -decoders 2>/dev/null | awk '$2 == "h264" { f = 1 } END { exit !f }'; then
+    echo "No native h264 decoder: avc1 video will not play... Exiting"; exit 1
+fi
+
 # fastfetch config and its SIVA logo are staged from system/, so rpm -q cannot vouch for them
 test -f /etc/fastfetch/config.jsonc
 # The logo is a pre-rendered coloured-braille text file printed via file-raw (no
@@ -48,6 +56,8 @@ test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 IMPORTANT_PACKAGES=(
     distrobox
     flatpak
+    libavcodec-freeworld
+    openh264
     ptyxis
     gdm
     systemd
@@ -66,6 +76,7 @@ UNWANTED_PACKAGES=(
     firefox
     gnome-software
     gnome-software-rpm-ostree
+    noopenh264
     podman-docker
 )
 
