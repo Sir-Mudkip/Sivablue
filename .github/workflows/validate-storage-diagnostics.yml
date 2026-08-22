@@ -119,6 +119,54 @@ jobs:
             echo "::warning::vfs copies the entire tree per layer - this would fully explain the slow commits"
           fi
 
+      - name: Why is native overlay diff disabled?
+        shell: bash
+        run: |
+          set -uo pipefail
+          # containers/storage logs the exact reason it fell back to naive diff.
+          {
+            echo '```'
+            echo "--- containers/storage reason (debug log) ---"
+            sudo podman --log-level=debug info 2>&1 \
+              | grep -iE "native diff|naive diff|metacopy|redirect" || echo "(no matching debug line)"
+            echo
+            echo "--- kernel overlay module parameters ---"
+            for f in /sys/module/overlay/parameters/*; do
+              [ -e "$f" ] && echo "$(basename "$f") = $(cat "$f" 2>/dev/null)"
+            done
+            echo
+            echo "--- mount-program marker (set when layers were built with fuse-overlayfs) ---"
+            sudo ls -la /var/lib/containers/storage/overlay/ 2>/dev/null | grep -E "has-mount-program|^total" \
+              || echo "(overlay home not readable or absent)"
+            sudo test -f /var/lib/containers/storage/overlay/.has-mount-program \
+              && echo "MARKER PRESENT: store was created under a mount program" \
+              || echo "MARKER ABSENT"
+            echo
+            echo "--- store contents ---"
+            echo "layers: $(sudo podman images -q 2>/dev/null | wc -l) images"
+            sudo du -sh /var/lib/containers/storage 2>/dev/null || true
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Native overlay diff AFTER a storage reset
+        shell: bash
+        run: |
+          set -uo pipefail
+          # Tests the hypothesis directly: if the marker is what pins podman to
+          # naive diff, a clean store with no mount program should come up native.
+          sudo podman system reset -f >/dev/null 2>&1 || sudo rm -rf /var/lib/containers/storage
+          NATIVE=$(sudo podman info --format '{{index .Store.GraphStatus "Native Overlay Diff"}}')
+          {
+            echo
+            echo "### After storage reset"
+            echo
+            echo "**Native Overlay Diff:** \`${NATIVE}\`"
+            echo '```'
+            sudo podman info --format '{{json .Store}}' | python3 -m json.tool
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "::notice::After reset, Native Overlay Diff = ${NATIVE}"
+
       - name: Time one layer commit on the real base image
         if: inputs.benchmark
         shell: bash
