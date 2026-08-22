@@ -167,7 +167,9 @@ build $target_image=image_name $tag=default_tag $variant="":
     CACHE_ARGS=()
     cache_ref="ghcr.io/${IMAGE_VENDOR:-${REPO_ORG}}/${target_image}"
     if skopeo list-tags "docker://${cache_ref}" >/dev/null 2>&1; then
-        CACHE_ARGS+=("--cache-from" "${cache_ref}")
+        if [[ "${REGISTRY_CACHE_READ:-1}" == "1" ]]; then
+            CACHE_ARGS+=("--cache-from" "${cache_ref}")
+        fi
         if [[ "${REGISTRY_CACHE_WRITE:-0}" == "1" ]]; then
             CACHE_ARGS+=("--cache-to" "${cache_ref}")
         fi

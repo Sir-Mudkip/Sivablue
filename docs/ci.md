@@ -12,6 +12,20 @@
 `paths-ignore`), so a documentation-only change does not trigger an image
 build.
 
+## Forcing a cold build
+
+`build.yml`'s `workflow_dispatch` takes a `no_cache` input. It sets
+`REGISTRY_CACHE_READ=0`, which drops `--cache-from` in the `Justfile`'s build
+recipe so no layer is pulled from GHCR. `--cache-to` is unaffected, so the run
+still refreshes the cache for everyone after it. Every other trigger defaults
+the variable to `1` and behaves as before.
+
+This exists because a green build proves little on its own: the layers that
+were slow before the native-overlayfs fix are exactly the ones that normally
+hit cache, so a routine run never exercises them. The failure being guarded
+against only appears when the upstream base digest moves and every layer below
+it rebuilds. `no_cache` reproduces that on demand instead of waiting for it.
+
 ## Podman storage on the runner
 
 `build.yml` patches `/etc/containers/storage.conf` before building - commenting
