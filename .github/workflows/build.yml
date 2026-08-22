@@ -87,6 +87,29 @@ jobs:
           update-podman: "true"
           install-tools: '["just"]'
 
+      # The runner image ships /etc/containers/storage.conf pointing podman at
+      # fuse-overlayfs. This build runs as root on ext4, which supports native
+      # overlayfs, so the mount program only forces every layer diff through
+      # userspace - it cost ~27 minutes per committed layer. See docs/ci.md.
+      - name: Use native overlayfs for podman storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          # mountopt carries fsync=0, a fuse-overlayfs option the kernel driver
+          # rejects, so it has to go along with the mount program.
+          sudo sed -i -E 's@^[[:space:]]*(mount_program|mountopt)[[:space:]]*=.*@#&@' \
+            /etc/containers/storage.conf
+
+          # Assert rather than hope. A silent fallback to the userspace path is
+          # exactly how this regressed unnoticed for two months.
+          NATIVE=$(sudo podman info --format '{{index .Store.GraphStatus "Native Overlay Diff"}}')
+          echo "Native Overlay Diff: ${NATIVE}"
+          if [ "${NATIVE}" != "true" ]; then
+            sudo podman info --format '{{json .Store}}'
+            echo "::error::podman is not using native overlayfs; builds would take hours"
+            exit 1
+          fi
+
       - name: Restore DNF cache
         id: dnf-cache-restore
         uses: projectbluefin/actions/bootc-build/dnf-cache@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1

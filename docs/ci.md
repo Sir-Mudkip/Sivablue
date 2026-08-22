@@ -12,6 +12,33 @@
 `paths-ignore`), so a documentation-only change does not trigger an image
 build.
 
+## Podman storage on the runner
+
+`build.yml` patches `/etc/containers/storage.conf` before building, commenting
+out `mount_program` and `mountopt`, then asserts that
+`podman info` reports `Native Overlay Diff: true`.
+
+The GitHub runner image ships that file pointing podman at
+`/usr/local/bin/fuse-overlayfs`. Podman then reports its driver as `overlay`
+while routing every layer operation through a userspace FUSE implementation.
+The build runs as root on ext4 with `d_type` support, so kernel overlayfs is
+available and the mount program buys nothing. It cost roughly 27 minutes per
+committed layer - a flat toll independent of what the layer changed, so
+`RUN rm /opt && mkdir /opt` cost the same as a full package install. Six
+committed layers put builds past the 120-minute step timeout in `build.yml`.
+
+`mountopt` is commented out alongside it because it carries `fsync=0`, a
+fuse-overlayfs option the kernel driver rejects.
+
+The step fails the build if native overlay is not active afterwards. That is
+deliberate: this regression went unnoticed for two months precisely because the
+slow path was entered silently. `setup-runner` is passed
+`storage-backend: btrfs`, but the underlying `container-storage-action` skips
+its btrfs loopback with only a `::notice::` when `/mnt` is not a mountpoint -
+which it no longer is on GitHub runners - and the step still reports success.
+Until June 2026 that loopback did mount, which kept podman off the FUSE path
+and builds at roughly 10 minutes.
+
 ## Permissions
 
 `build.yml` declares `contents: read`, `packages: write`, `id-token: write`,
