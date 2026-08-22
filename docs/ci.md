@@ -36,8 +36,13 @@ podman. Turning the module parameter off host-wide works equally well and was
 rejected as needlessly broad. The stock `mountopt` value's `fsync=0` is
 dropped in passing - it is a fuse-overlayfs option the kernel driver rejects.
 
-A storage reset was ruled out as the fix: with the mount program removed but
-`redirect_dir` untouched, a clean store still comes up with native diff off.
+Both parts are required, and so is discarding the runner's pre-baked ~29GB
+container store. That store carries containers/storage's `.has-mount-program`
+marker, which pins it to naive diff regardless of what the config says
+afterwards. Measured on the runner: a reset without `redirect_dir=off` gives
+native diff off, `redirect_dir=off` against the pre-baked store gives native
+diff off, and the two together give native diff on. The build pulls its own
+images, so nothing is lost by resetting.
 
 The step fails the build if native overlay is not active afterwards. That is
 deliberate: this regression went unnoticed for two months precisely because the

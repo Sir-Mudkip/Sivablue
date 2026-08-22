@@ -110,6 +110,13 @@ jobs:
             || sudo sed -i '/^\[storage.options.overlay\]/a mountopt = "nodev,redirect_dir=off"' \
                  /etc/containers/storage.conf
 
+          # The runner ships a pre-baked ~29GB store carrying containers/storage's
+          # .has-mount-program marker, which pins it to naive diff no matter what
+          # the config now says. The build pulls everything it needs anyway, so
+          # discard it; config changes alone leave native diff off.
+          sudo podman system reset -f >/dev/null 2>&1 \
+            || sudo rm -rf /var/lib/containers/storage
+
           # Assert rather than hope. A silent fallback to the userspace path is
           # exactly how this regressed unnoticed for two months.
           NATIVE=$(sudo podman info --format '{{index .Store.GraphStatus "Native Overlay Diff"}}')
