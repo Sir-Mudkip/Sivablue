@@ -38,6 +38,7 @@ jobs:
         run: |
           # Establish the baseline the action sees when it decides to skip.
           echo "### Before setup-runner" >> "$GITHUB_STEP_SUMMARY"
+          # tee: the summary is not readable via the API, the job log is.
           {
             echo '```'
             echo "--- is /mnt a mountpoint? (this is the check that gates btrfs) ---"
@@ -53,7 +54,7 @@ jobs:
             echo "--- lsblk ---"
             lsblk || true
             echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
       # Pinned to the exact SHA build.yml uses, with the same storage-relevant
       # inputs, so this reproduces the real build's environment.
@@ -96,7 +97,7 @@ jobs:
             echo "--- versions ---"
             sudo podman --version; sudo buildah --version
             echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
 
           # Make the verdict impossible to miss in the job log.
           echo "::notice::Graph driver is '${DRIVER}' at ${ROOT}"
@@ -131,5 +132,5 @@ jobs:
             echo "\`RUN rm /opt && mkdir /opt\` on the real base: **${ELAPSED}s** ($((ELAPSED / 60))m)"
             echo
             echo "Local builds complete entirely in ~25 min, so anything near that here is the whole problem."
-          } >> "$GITHUB_STEP_SUMMARY"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
           echo "::notice::Trivial layer commit took ${ELAPSED}s"
