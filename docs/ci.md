@@ -12,6 +12,27 @@
 `paths-ignore`), so a documentation-only change does not trigger an image
 build.
 
+## Caching
+
+The build caches DNF package downloads only, via the
+`projectbluefin/actions/bootc-build/dnf-cache` action (restored before the
+build, saved after). That covers the expensive part of `build/`: fetching
+packages.
+
+There is deliberately **no registry layer cache**. `podman build --cache-to`
+was removed because buildah caches every layer with no way to select which,
+and pushing those blobs to GHCR cost 25-28 minutes *per layer* — around 110
+minutes on any day the upstream `silverblue` digest moved and invalidated the
+base layers. That overran the 120-minute step timeout in `build.yml` and the
+build was killed mid-`bootc container lint`, which made the failure look like
+a lint failure. `build/build.sh` itself takes about six minutes, so the cache
+was buying six minutes and spending up to 110.
+
+The read side (`--cache-from`) went with it. With nothing writing the cache it
+would have pinned to the last-pushed layer set forever. It had already caused
+a scheduled nightly to reuse a cached `build.sh` layer and publish an image
+with no new packages in it.
+
 ## Permissions
 
 `build.yml` declares `contents: read`, `packages: write`, `id-token: write`,
