@@ -14,9 +14,9 @@ build.
 
 ## Podman storage on the runner
 
-`build.yml` patches `/etc/containers/storage.conf` before building, commenting
-out `mount_program` and `mountopt`, then asserts that
-`podman info` reports `Native Overlay Diff: true`.
+`build.yml` patches `/etc/containers/storage.conf` before building - commenting
+out `mount_program` and setting `mountopt = "nodev,redirect_dir=off"` - then
+asserts that `podman info` reports `Native Overlay Diff: true`.
 
 The GitHub runner image ships that file pointing podman at
 `/usr/local/bin/fuse-overlayfs`. Podman then reports its driver as `overlay`
@@ -27,8 +27,17 @@ committed layer - a flat toll independent of what the layer changed, so
 `RUN rm /opt && mkdir /opt` cost the same as a full package install. Six
 committed layers put builds past the 120-minute step timeout in `build.yml`.
 
-`mountopt` is commented out alongside it because it carries `fsync=0`, a
-fuse-overlayfs option the kernel driver rejects.
+Removing the mount program is necessary but not sufficient. These runners also
+report `redirect_dir = Y` in `/sys/module/overlay/parameters/`, and
+containers/storage disables native diff whenever its probe mount shows the
+kernel using redirect_dir. That probe appends `mountopt` to its test mount, so
+setting `redirect_dir=off` there restores native diff with the change scoped to
+podman. Turning the module parameter off host-wide works equally well and was
+rejected as needlessly broad. The stock `mountopt` value's `fsync=0` is
+dropped in passing - it is a fuse-overlayfs option the kernel driver rejects.
+
+A storage reset was ruled out as the fix: with the mount program removed but
+`redirect_dir` untouched, a clean store still comes up with native diff off.
 
 The step fails the build if native overlay is not active afterwards. That is
 deliberate: this regression went unnoticed for two months precisely because the

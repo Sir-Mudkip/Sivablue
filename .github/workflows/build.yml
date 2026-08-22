@@ -95,10 +95,20 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # mountopt carries fsync=0, a fuse-overlayfs option the kernel driver
-          # rejects, so it has to go along with the mount program.
-          sudo sed -i -E 's@^[[:space:]]*(mount_program|mountopt)[[:space:]]*=.*@#&@' \
+          # As root on ext4 the kernel driver works, so drop the FUSE mount
+          # program; while it is set, containers/storage forces naive diff.
+          sudo sed -i -E 's@^[[:space:]]*mount_program[[:space:]]*=.*@#&@' \
             /etc/containers/storage.conf
+
+          # This kernel reports overlay redirect_dir=Y, which containers/storage
+          # treats as disqualifying for native diff. Scoping redirect_dir=off to
+          # podman's own mounts restores it without touching the host module.
+          # The stock value's fsync=0 goes too - that is fuse-overlayfs only.
+          sudo sed -i -E 's@^[[:space:]]*#?[[:space:]]*mountopt[[:space:]]*=.*@mountopt = "nodev,redirect_dir=off"@' \
+            /etc/containers/storage.conf
+          grep -q '^mountopt' /etc/containers/storage.conf \
+            || sudo sed -i '/^\[storage.options.overlay\]/a mountopt = "nodev,redirect_dir=off"' \
+                 /etc/containers/storage.conf
 
           # Assert rather than hope. A silent fallback to the userspace path is
           # exactly how this regressed unnoticed for two months.
