@@ -1,0 +1,135 @@
+---
+# Diagnostic probe for the CI build slowdown. Not part of any build.
+#
+# Reports which storage driver podman actually uses on the runner after
+# `setup-runner` has configured it. The build asks for `storage-backend: btrfs`
+# but every run logs "/mnt mountpoint not detected. Skipping BTRFS loopback..."
+# as a notice and carries on, so /var/lib/containers ends up on the root disk
+# with an unknown driver. If that driver copies the whole tree per layer rather
+# than recording a diff, it explains 20-30 minute commits for layers that change
+# almost nothing.
+#
+# Filename matches the *validate*.yml pattern that build.yml's paths-ignore
+# excludes, so pushing this does not trigger an image build.
+#
+# Delete once the storage question is settled.
+name: Validate storage diagnostics
+
+on:
+  workflow_dispatch:
+    inputs:
+      benchmark:
+        description: "Also time a single layer commit on the real base image (slow: may take ~30 min)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  storage-info:
+    name: Report runner storage configuration
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - name: Storage state BEFORE setup-runner
+        shell: bash
+        run: |
+          # Establish the baseline the action sees when it decides to skip.
+          echo "### Before setup-runner" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo '```'
+            echo "--- is /mnt a mountpoint? (this is the check that gates btrfs) ---"
+            sudo mountpoint /mnt && echo "RESULT: /mnt IS a mountpoint" \
+              || echo "RESULT: /mnt is NOT a mountpoint -> btrfs loopback will be skipped"
+            echo
+            echo "--- findmnt /mnt ---"
+            findmnt /mnt || echo "(no /mnt mount)"
+            echo
+            echo "--- df -hT ---"
+            df -hT
+            echo
+            echo "--- lsblk ---"
+            lsblk || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Pinned to the exact SHA build.yml uses, with the same storage-relevant
+      # inputs, so this reproduces the real build's environment.
+      - name: Setup runner
+        uses: projectbluefin/actions/bootc-build/setup-runner@cbd8446f58a079e48f76d81d5bc1c2fdec95d592 # v1
+        with:
+          storage-backend: btrfs
+          update-podman: "true"
+          install-tools: '[]'
+
+      - name: Storage state AFTER setup-runner
+        shell: bash
+        run: |
+          # GraphDriverName is the answer we came for. GraphStatus carries
+          # "Backing Filesystem" and "Native Overlay Diff" - a false there means
+          # podman is on a slow copying path even when the driver says overlay.
+          DRIVER=$(sudo podman info --format '{{.Store.GraphDriverName}}')
+          ROOT=$(sudo podman info --format '{{.Store.GraphRoot}}')
+
+          echo "### After setup-runner" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo
+            echo "**Graph driver:** \`${DRIVER}\`"
+            echo "**Graph root:** \`${ROOT}\`"
+            echo
+            echo '```'
+            echo "--- podman info: store ---"
+            sudo podman info --format '{{json .Store}}' | python3 -m json.tool
+            echo
+            echo "--- backing filesystem of the graph root ---"
+            df -hT "${ROOT}" || true
+            findmnt --target "${ROOT}" || true
+            echo
+            echo "--- container storage mounts ---"
+            mount | grep -Ei "containers|btrfs" || echo "(no container-storage mount: not on a dedicated filesystem)"
+            echo
+            echo "--- /etc/containers/storage.conf ---"
+            sudo cat /etc/containers/storage.conf 2>/dev/null | grep -vE '^\s*#|^\s*$' || echo "(absent)"
+            echo
+            echo "--- versions ---"
+            sudo podman --version; sudo buildah --version
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Make the verdict impossible to miss in the job log.
+          echo "::notice::Graph driver is '${DRIVER}' at ${ROOT}"
+          if [ "${DRIVER}" = "vfs" ]; then
+            echo "::warning::vfs copies the entire tree per layer - this would fully explain the slow commits"
+          fi
+
+      - name: Time one layer commit on the real base image
+        if: inputs.benchmark
+        shell: bash
+        run: |
+          # The build's own first step is `RUN rm /opt && mkdir /opt`, which
+          # changes one directory. Timing exactly that isolates commit cost from
+          # any real work: whatever this takes is pure storage-driver overhead.
+          cat > /tmp/Containerfile.probe <<'EOF'
+          FROM quay.io/fedora-ostree-desktops/silverblue:44
+          RUN rm /opt && mkdir /opt
+          EOF
+
+          echo "Pulling base image (not timed)..."
+          sudo podman pull -q quay.io/fedora-ostree-desktops/silverblue:44
+
+          echo "Timing the commit of a single trivial layer..."
+          START=$(date +%s)
+          sudo podman build -f /tmp/Containerfile.probe -t storage-probe:latest /tmp
+          ELAPSED=$(( $(date +%s) - START ))
+
+          {
+            echo
+            echo "### Single trivial layer commit"
+            echo
+            echo "\`RUN rm /opt && mkdir /opt\` on the real base: **${ELAPSED}s** ($((ELAPSED / 60))m)"
+            echo
+            echo "Local builds complete entirely in ~25 min, so anything near that here is the whole problem."
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice::Trivial layer commit took ${ELAPSED}s"
