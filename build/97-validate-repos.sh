@@ -81,6 +81,12 @@ for repo_name in "${OTHER_REPOS[@]}"; do
 done
 
 echo ""
+echo "Checking BrowserWorks (Waterfox) repository..."
+for repo in "$REPOS_DIR"/*BrowserWorks*.repo; do
+    [[ -f "$repo" ]] && check_repo_file "$repo"
+done
+
+echo ""
 echo "Checking RPM Fusion repositories..."
 for repo in "$REPOS_DIR"/rpmfusion-*.repo; do
     [[ -f "$repo" ]] && check_repo_file "$repo"

@@ -22,9 +22,10 @@ for i in bin/ujust share/sivablue/just/{apps.just,system.just,utils.just,fetch.j
    stat /usr/$i
 done
 
-# Waterfox is a tarball install, so rpm -q cannot vouch for it
-test -x /usr/lib/waterfox/waterfox
+# rpm -q vouches for the package itself (see IMPORTANT_PACKAGES); these check
+# the parts the build still does by hand, plus that the binary actually runs.
 test -x /usr/bin/waterfox
+test -f /usr/lib/waterfox/distribution/policies.json
 test -f /usr/share/applications/waterfox.desktop
 test -f /usr/share/icons/hicolor/128x128/apps/waterfox.png
 /usr/bin/waterfox --version
@@ -64,6 +65,7 @@ IMPORTANT_PACKAGES=(
     tailscale
     uupd
     eddie-ui
+    waterfox
 )
 
 for package in "${IMPORTANT_PACKAGES[@]}"; do

@@ -35,9 +35,12 @@ time, or they will nag users about updates they have no way to apply from
 inside the application.
 
 Firefox-family applications need a `distribution/policies.json` with
-`DisableAppUpdate` set (see `build/12-waterfox.sh`, which writes this for
-Waterfox). Updates arrive via image rebuild plus `bootc upgrade`, so
-"latest" means latest **at build time**, not at run time.
+`DisableAppUpdate` set. A properly packaged build usually does this for
+itself — the Waterfox RPM sets `app.update.enabled=false` in its own
+`defaults/pref/package-prefs.js` — but an unpackaged one will not, and
+`build/12-waterfox.sh` writes that file regardless for the settings the
+package leaves alone. Updates arrive via image rebuild plus `bootc upgrade`,
+so "latest" means latest **at build time**, not at run time.
 
 ## Tarballs go to `/usr/lib`, not `/opt`
 
@@ -46,12 +49,14 @@ Tarball installs go under `/usr/lib/<name>`, with a symlink into
 this: the `Containerfile` does `rm /opt && mkdir /opt` to make it
 immutable, so nothing can be installed there.
 
-`build/12-waterfox.sh` is the reference implementation: it extracts the
-tarball to `/usr/lib/waterfox`, symlinks `/usr/bin/waterfox` to the
-extracted binary, writes the updater-disabling policy described above,
-promotes the bundled icons into the `hicolor` icon theme, and rebuilds the
-icon cache and desktop database by hand — steps `rpm` would otherwise do
-for a packaged install.
+No stage currently installs a tarball — `build/12-waterfox.sh` was the
+reference implementation until Waterfox 6.7.0 gained an upstream RPM. The
+shape it had is what to reproduce: extract to `/usr/lib/<name>`, symlink the
+binary into `/usr/bin`, write the updater-disabling policy described above,
+promote the bundled icons into the `hicolor` icon theme, and rebuild the icon
+cache and desktop database by hand — all steps `rpm` would otherwise do for a
+packaged install. `git show 5f39d95:build/12-waterfox.sh` has the full
+version.
 
 ## `/etc` versus `/usr/share`
 

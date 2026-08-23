@@ -57,10 +57,10 @@ Full stage-by-stage detail: [`docs/build-stages.md`](docs/build-stages.md).
 ## Installing software
 
 - **Fedora packages** — add to `FEDORA_PACKAGES` in `build/10-packages.sh`.
-- **Third-party repo** — one stage per vendor (`06-docker.sh`, `07-tailscale.sh`, `08-vscode.sh`). Pattern: add the repo, immediately disable it, then `dnf -y install --enablerepo=<id>` so it never stays enabled at runtime.
+- **Third-party repo** — one stage per vendor (`06-docker.sh`, `07-tailscale.sh`, `08-vscode.sh`, `12-waterfox.sh`). Pattern: add the repo, immediately disable it, then `dnf -y install --enablerepo=<id>` so it never stays enabled at runtime.
 - **COPR** — `copr_install_isolated "owner/project" pkg…` after sourcing `copr-helpers.sh`.
 - **Flatpak** — add a `[Flatpak Preinstall <id>]` block to `system/usr/share/flatpak/preinstall.d/default.preinstall`. That file must exist in the image or Bazaar is uninstalled from users' systems.
-- **Tarball** — install under `/usr/lib/<name>` and symlink into `/usr/bin`. **Not `/opt`**. See `build/12-waterfox.sh`.
+- **Tarball** — install under `/usr/lib/<name>` and symlink into `/usr/bin`. **Not `/opt`**. No stage does this today; see [`docs/filesystem-layout.md`](docs/filesystem-layout.md) for the shape to follow.
 - `/usr` is read-only at runtime, so bundled self-updaters cannot work — disable them (Firefox-family: a `distribution/policies.json` with `DisableAppUpdate`). Updates arrive via image rebuild + `bootc upgrade`, so "latest" means latest *at build time*.
 
 Where files go in the image and why: [`docs/filesystem-layout.md`](docs/filesystem-layout.md).

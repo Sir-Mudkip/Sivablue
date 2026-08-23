@@ -91,18 +91,33 @@ a Fedora package.**
 
 ### `12-waterfox.sh`
 
-Tarball install. Queries GitHub's `releases/latest` via `ghcurl` (latest
-excludes prereleases, so betas are skipped), validates the tag against
-`^[0-9]+\.[0-9]+\.[0-9]+$` and hard-fails otherwise rather than shipping a
-stale browser. Installs to `/usr/lib/waterfox`, symlinks to `/usr/bin`.
-Installs `bzip2` only if missing and removes it again afterwards. Upstream
-publishes no checksums, so it sanity-checks the archive with `tar -tjf` — a
-truncated download or HTML error page fails here. Writes
-`distribution/policies.json` with `DisableAppUpdate` because `/usr` is
-read-only at runtime. Promotes bundled icons into hicolor and runs
-`gtk-update-icon-cache -f`, because GTK trusts the base image's icon cache
-and will not rescan for icons it predates — rpm does this for packaged
-installs, a tarball must do it by hand.
+Third-party repo install, following the same pattern as `07-tailscale.sh`:
+add BrowserWorks' openSUSE Build Service repo, disable it immediately with
+`config-manager setopt isv_BrowserWorks.enabled=0`, then install with
+`--enablerepo=isv_BrowserWorks`. The repo URL is built with
+`Fedora_$(rpm -E %fedora)` rather than a pinned release, so a rebase onto a
+Fedora that BrowserWorks has not published for fails here instead of
+silently resolving against the wrong release.
+
+Waterfox was a tarball install until 6.7.0, the first release BrowserWorks
+ship as an RPM. The package lands on exactly the same paths the
+tarball did — `/usr/lib/waterfox` with `/usr/bin/waterfox` symlinked to the
+binary — and ships the same upstream build, so `~/.waterfox` profiles carry
+over untouched (`application.ini` keeps `Vendor=BrowserWorks`,
+`Profile=Waterfox` and the same application ID). It also owns
+`/usr/share/applications/waterfox.desktop` and the hicolor icons, which is
+why neither is staged from `system/` any more.
+
+Two things the package does not do, so the stage still does them:
+
+- `distribution/policies.json` with `DontCheckDefaultBrowser`. The bundled
+  updater no longer needs disabling by hand — the package sets
+  `app.update.enabled=false` in `defaults/pref/package-prefs.js` and ships
+  an `is-packaged-app` marker — but nothing suppresses the default-browser
+  prompt.
+- `gtk-update-icon-cache -f` and `update-desktop-database`. The package
+  carries no scriptlets, and GTK trusts the base image's icon cache and will
+  not rescan for icons it predates.
 
 The stage then installs H.264 codec support. This lives here, rather than in
 `10-packages.sh`, because Waterfox is the reason the image needs it.
@@ -209,8 +224,9 @@ Resets `keepcache=0`, clears versionlocks, masks and deletes
 
 The build's own gate. Verifies the ublue-os signing key hashes (without them
 a published image cannot pull `ghcr.io/ublue-os/*` and therefore cannot
-update), stats the `ujust` binary and each `.just` file, checks the Waterfox
-tarball install, the fastfetch config and logo, and `default.preinstall`.
+update), stats the `ujust` binary and each `.just` file, checks the parts of the
+Waterfox install the build still does by hand, the fastfetch config and logo,
+and `default.preinstall`.
 Asserts required packages are present, unwanted ones absent, and required
 timers enabled. It also asserts a decoder named exactly `h264` appears in
 `ffmpeg -decoders`: `rpm -q` cannot distinguish a working codec from the
@@ -232,13 +248,13 @@ adds a third-party repo. Update this page.
 
 ## `ghcurl` token permissions
 
-`ghcurl` requires no token scopes. Its two callers, `12-waterfox.sh` and
-`13-eddie.sh`, read release metadata from public repositories, so a token only
-lifts the GitHub API rate limit from 60 requests per hour per IP to 5,000. CI's
-automatic `secrets.GITHUB_TOKEN` (`contents: read`, `.github/workflows/build.yml:21`)
+`ghcurl` requires no token scopes. Its only caller, `13-eddie.sh`, reads
+release metadata from a public repository, so a token only lifts the GitHub
+API rate limit from 60 requests per hour per IP to 5,000. CI's automatic
+`secrets.GITHUB_TOKEN` (`contents: read`, `.github/workflows/build.yml:21`)
 is sufficient; locally, any scopeless classic PAT exported as `GITHUB_TOKEN` is
 forwarded as a podman secret by `Justfile:143-145`. Without a token the build
-still works but can fail on HTTP 403, and both stages deliberately hard-fail
+still works but can fail on HTTP 403, and the stage deliberately hard-fails
 rather than ship a stale version.
 
 ## dnf5, always
