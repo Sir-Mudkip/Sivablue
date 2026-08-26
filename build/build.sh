@@ -29,6 +29,9 @@ echo "::group:: Building Image..."
 # Install Packages
 /ctx/build/10-packages.sh
 
+# Build Ghostty from source
+/ctx/build/11-ghostty.sh
+
 # Install Waterfox
 /ctx/build/12-waterfox.sh
 

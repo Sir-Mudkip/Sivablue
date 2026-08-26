@@ -24,6 +24,7 @@ every login, and `ujust --choose`.
 |---|---|
 | Added, removed or renumbered a build stage | [`build-stages.md`](./build-stages.md) |
 | Added a Fedora package, COPR or third-party repo | [`build-stages.md`](./build-stages.md) |
+| Added or changed software built from source | [`build-stages.md`](./build-stages.md) |
 | Chose where a file lives in the image | [`filesystem-layout.md`](./filesystem-layout.md) |
 | Changed a default setting | [`settings.md`](./settings.md) |
 | Added or updated a GNOME extension | [`extensions.md`](./extensions.md) |

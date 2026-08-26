@@ -35,6 +35,7 @@ FEDORA_PACKAGES=(
     glow
     gnome-tweaks
     gocryptfs
+    gtk4-layer-shell
     gum
     htop
     iwd
@@ -83,9 +84,6 @@ copr_install_isolated "che/nerd-fonts" "nerd-fonts"
 
 echo "Installing uupd"
 copr_install_isolated "ublue-os/packages" "uupd"
-
-echo "Installing Ghostty"
-copr_install_isolated "scottames/ghostty" "ghostty"
 
 # Packages to exclude - common to all versions
 EXCLUDED_PACKAGES=(

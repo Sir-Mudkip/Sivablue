@@ -38,6 +38,33 @@ if ! ffmpeg -hide_banner -decoders 2>/dev/null | awk '$2 == "h264" { f = 1 } END
     echo "No native h264 decoder: avc1 video will not play... Exiting"; exit 1
 fi
 
+# Ghostty is built from source, so rpm -q cannot vouch for any of it. Check the
+# binary runs and that zig build -p laid out the parts shell integration and
+# terminfo depend on.
+test -x /usr/bin/ghostty
+/usr/bin/ghostty +version
+
+# Without -Dversion-string the build falls back to git detection, which a
+# release tarball cannot satisfy, and Ghostty silently reports itself as a
+# "-dev" build on the tip channel. Assert it identifies as a stable release.
+if ! /usr/bin/ghostty +version | grep -q "channel: stable"; then
+    /usr/bin/ghostty +version
+    echo "Ghostty did not build as a stable release... Exiting"; exit 1
+fi
+test -f /usr/share/applications/com.mitchellh.ghostty.desktop
+test -d /usr/share/ghostty/shell-integration
+# ncurses lays the compiled db out under letter or hex directories depending on
+# how it was built, so look the entry up rather than assume a path.
+test -n "$(find /usr/share/terminfo -name xterm-ghostty -print -quit)"
+
+# The Zig toolchain and the -devel headers are build-only; if they reach the
+# image the cleanup in 11-ghostty.sh regressed.
+test ! -e /root/.cache/zig
+test ! -e /var/tmp/ghostty-build
+if rpm -q gtk4-devel >/dev/null 2>&1; then
+    echo "Build-only gtk4-devel present on image... Exiting"; exit 1
+fi
+
 # fastfetch config and its SIVA logo are staged from system/, so rpm -q cannot vouch for them
 test -f /etc/fastfetch/config.jsonc
 # The logo is a pre-rendered coloured-braille text file printed via file-raw (no
@@ -57,6 +84,9 @@ test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 IMPORTANT_PACKAGES=(
     distrobox
     flatpak
+    gcc
+    gtk4-layer-shell
+    make
     libavcodec-freeworld
     openh264
     ptyxis

@@ -58,6 +58,24 @@ cache and desktop database by hand — all steps `rpm` would otherwise do for a
 packaged install. `git show 5f39d95:build/12-waterfox.sh` has the full
 version.
 
+### Exception: builds that install an FHS tree
+
+Ghostty is the one install that does not follow the rule above. `build/11-ghostty.sh`
+runs `zig build -p /usr`, which spreads files across the prefix —
+`/usr/bin/ghostty`, `/usr/share/ghostty/shell-integration`, the compiled
+terminfo entry under `/usr/share/terminfo`, `/usr/share/applications/com.mitchellh.ghostty.desktop`,
+hicolor icons and GTK shortcuts.
+
+Confining that to `/usr/lib/ghostty` with a symlink would break it. Shell
+integration, the terminfo database and the desktop entry are only found at
+their real FHS paths, and upstream's `-p` flag is what wires them up. This is
+the same layout an RPM would produce, which is what the previous COPR package
+did produce — so it is not a special case so much as a package-shaped install
+performed without a package.
+
+The `/usr/lib/<name>` rule still applies to prebuilt tarballs, which ship a
+self-contained application directory rather than an FHS tree.
+
 ## `/etc` versus `/usr/share`
 
 `/etc` is for configuration an administrator (or user override) may
