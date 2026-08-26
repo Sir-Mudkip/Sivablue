@@ -123,6 +123,7 @@ just build     # full image build
 - **Always `dnf5`, never bare `dnf`, `yum` or `rpm-ostree`.** Every invocation in `build/` is `dnf5` and it stays that way (reasoning: [`docs/build-stages.md`](docs/build-stages.md)).
 - **Never commit `cosign.key`** (it is gitignored; `cosign.pub` is committed deliberately).
 - **Do not add massive comment blocks to build files** — If you want to explain something, such as a design decision, it should be added to a file in the docs directory with an explanation as to why that decision was made. Per design change, this file should be updated. Each file should have an explanation of what each part of the build is doing e.g. what each build file is doing, why things are in `/usr/lib`, etc.
+- **Always clean up after yourself** - Sometimes, you will run `just build` to build the container. This will pull down other containers. These should always be cleaned up and removed at the end of every session. The same goes for any installations via `brew`, `apt`, `dnf`, etc. Any installations should be removed and cleaned once the session is over as not to bloat the system you're working on.
 
 ### Leave alone unless asked
 
