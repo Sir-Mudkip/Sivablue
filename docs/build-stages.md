@@ -125,12 +125,16 @@ so. Four details are load-bearing:
   pointed there too — their default is under `/root/.cache`, which would be
   committed to the image.
 
-Install is `zig build -p /usr -Doptimize=ReleaseFast -Dversion-string=<version>`.
-Both flags carry meaning beyond the obvious:
+Install is
+`zig build -p /usr -Doptimize=ReleaseFast -Dcpu=x86_64_v2 -Dversion-string=<version>`.
+Every flag carries meaning beyond the obvious:
 
 - `ReleaseFast` is not only about speed — the build uses the optimize mode to
   decide the application ID, so a `Debug`/`ReleaseSafe` build would install as
   `com.mitchellh.ghostty-debug` instead.
+- `-Dcpu` fixes the instruction set the compiler may emit. Without it Zig
+  targets `native`, which means native *CPU model detection* and not merely the
+  host's OS and architecture — see "Why the CPU baseline is pinned" below.
 - `-Dversion-string` is required, not cosmetic. Ghostty derives its version by
   running `git describe`, and a release tarball is not a repository, so the
   detection fails and falls back to a `-dev` prerelease version. Because the
@@ -168,6 +172,48 @@ Because Ghostty is built rather than packaged, `rpm -q` can vouch for none of
 it, so `99-tests.sh` checks the binary runs and that the FHS install actually
 landed — see [`filesystem-layout.md`](filesystem-layout.md) for why the
 install target is `/usr` rather than `/usr/lib/ghostty`.
+
+#### Why the CPU baseline is pinned
+
+Zig's default target is `native`, and native includes CPU *model* detection:
+the compiler reads the build machine's CPUID and enables every feature it
+finds. On a build farm that is the wrong default. The first source-built image
+shipped a Ghostty compiled with AVX-512, because the runner that produced it
+had AVX-512, and the binary died with `SIGILL` on any consumer Intel part —
+Alder Lake and Raptor Lake have AVX-512 fused off — before it could print a
+single byte, `ghostty +version` included.
+
+`-Dcpu=x86_64_v2` supplies the floor the RPM path got for free. Fedora builds
+every package against x86-64-v2, so a pinned Ghostty is exactly as portable as
+the rest of the image: no better, no worse, and portable to any future x86 CPU
+rather than to the machine that happened to compile it. The level is a floor
+and not a tuning target, so newer hardware needs no change here.
+
+**This is a rule for every source build, not a Ghostty quirk.** Any stage that
+compiles rather than installs must state its target explicitly; a build system
+left to its own devices will optimise for the builder.
+
+Ordinary tests cannot catch a regression here, because `99-tests.sh` runs on
+the machine that did the compiling, where the illegal instructions are legal.
+The guard therefore inspects the binary instead of executing it, failing the
+build if `objdump` finds an AVX-512 operand. Zig emits no
+`.note.gnu.property` ISA note — GCC-built objects carry one and `readelf -n`
+would have been a cleaner gate — so reading the instructions is the only
+option available.
+
+Two details of that check are load-bearing:
+
+- **It looks for `%zmm` only, not any vector register.** A pinned binary still
+  contains a few thousand `%ymm` operands, from vendored C that selects AVX2
+  kernels at runtime behind `cpuid` rather than at compile time. The COPR RPM
+  this replaced carries the same profile — 3968 `%ymm`, 0 `%zmm`, 80 `cpuid` —
+  which is what establishes that the AVX2 residue is dispatched and safe, and
+  that AVX-512 is the signal worth failing on.
+- **It counts with `grep -c` rather than testing with `grep -q`.** Under
+  `pipefail`, `-q` closes the pipe on the first match, `objdump` takes SIGPIPE,
+  and the pipeline reports 141 — so the `if` never fires and the check passes
+  on every input, broken ones included. Verify a guard rejects a known-bad
+  artifact before trusting it.
 
 ### `12-waterfox.sh`
 

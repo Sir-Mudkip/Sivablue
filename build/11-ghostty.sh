@@ -109,9 +109,13 @@ zig version
 # and a release tarball is not a repository, so without it Ghostty reports
 # itself as a "-dev" build on the tip channel rather than the stable release
 # it actually is.
+#
+# -Dcpu pins the ISA floor to Fedora's own baseline. Zig otherwise detects the
+# builder's CPU and bakes those features in. See docs/build-stages.md.
 cd "${GHOSTTY_SRC}"
 zig build -p /usr \
     -Doptimize=ReleaseFast \
+    -Dcpu=x86_64_v2 \
     -Dversion-string="${GHOSTTY_VERSION}" \
     --summary all
 cd /

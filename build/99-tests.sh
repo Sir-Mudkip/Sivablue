@@ -51,6 +51,16 @@ if ! /usr/bin/ghostty +version | grep -q "channel: stable"; then
     /usr/bin/ghostty +version
     echo "Ghostty did not build as a stable release... Exiting"; exit 1
 fi
+# Running the binary proves nothing about portability: the build machine can
+# execute whatever it compiled for. Inspect the instructions instead. Losing the
+# -Dcpu pin lets Zig compile for the runner, and an AVX-512 runner then yields
+# an image that SIGILLs on consumer Intel hardware. grep -c (not -q) is
+# deliberate: -q closes the pipe early and pipefail turns the SIGPIPE into a
+# non-zero status, which would make this check silently unfireable.
+ZMM_COUNT="$(objdump -d /usr/bin/ghostty | grep -cE '%zmm[0-9]+' || true)"
+if [[ "${ZMM_COUNT}" -ne 0 ]]; then
+    echo "Ghostty contains ${ZMM_COUNT} AVX-512 instructions... Exiting"; exit 1
+fi
 test -f /usr/share/applications/com.mitchellh.ghostty.desktop
 test -d /usr/share/ghostty/shell-integration
 # ncurses lays the compiled db out under letter or hex directories depending on
