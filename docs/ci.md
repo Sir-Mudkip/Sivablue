@@ -28,27 +28,42 @@ it rebuilds. `no_cache` reproduces that on demand instead of waiting for it.
 
 ## Podman storage on the runner
 
-`build.yml` patches `/etc/containers/storage.conf` before building - commenting
-out `mount_program` and setting `mountopt = "nodev,redirect_dir=off"` - then
-asserts that `podman info` reports `Native Overlay Diff: true`.
+`build.yml` writes `/etc/containers/storage.conf` before building - declaring
+`driver = "overlay"` and `mountopt = "nodev,redirect_dir=off"`, with no
+`mount_program` - then asserts that `podman info` reports
+`Native Overlay Diff: true`.
 
-The GitHub runner image ships that file pointing podman at
+It writes the file rather than patching it, and that is the result of a
+regression. Runner image `ubuntu24/20260831.293` downgraded podman from 5.8.4
+to 4.9.3, swapping the upstream build for Ubuntu's archive package, which does
+not ship `storage.conf` at all. The previous `sed`-based approach then exited 2
+on a missing file and took the whole step with it - builds failed from
+2026-09-03 until the file was declared outright. Writing the whole file is also
+idempotent and indifferent to what any future runner image ships.
+
+Runner images have historically shipped that file pointing podman at
 `/usr/local/bin/fuse-overlayfs`. Podman then reports its driver as `overlay`
 while routing every layer operation through a userspace FUSE implementation.
-The build runs as root on ext4 with `d_type` support, so kernel overlayfs is
+The build runs as root with `d_type` support, so kernel overlayfs is
 available and the mount program buys nothing. It cost roughly 27 minutes per
 committed layer - a flat toll independent of what the layer changed, so
 `RUN rm /opt && mkdir /opt` cost the same as a full package install. Six
 committed layers put builds past the 120-minute step timeout in `build.yml`.
 
-Removing the mount program is necessary but not sufficient. These runners also
+Leaving the mount program out is necessary but not sufficient. These runners also
 report `redirect_dir = Y` in `/sys/module/overlay/parameters/`, and
 containers/storage disables native diff whenever its probe mount shows the
 kernel using redirect_dir. That probe appends `mountopt` to its test mount, so
 setting `redirect_dir=off` there restores native diff with the change scoped to
 podman. Turning the module parameter off host-wide works equally well and was
-rejected as needlessly broad. The stock `mountopt` value's `fsync=0` is
-dropped in passing - it is a fuse-overlayfs option the kernel driver rejects.
+rejected as needlessly broad. The stock `mountopt` value's `fsync=0` is not
+carried over - it is a fuse-overlayfs option the kernel driver rejects.
+
+`projectbluefin/actions/bootc-build/setup-runner` has a `native-overlay` input
+that covers most of this, and the hand-rolled step could be replaced by it. It
+was kept because its `mountopt` is `"nodev"` alone, and the measurements below
+say `redirect_dir=off` is required on these runners. Worth re-testing if this
+step needs attention again.
 
 Both parts are required, and so is discarding the runner's pre-baked ~29GB
 container store. That store carries containers/storage's `.has-mount-program`

@@ -93,28 +93,37 @@ jobs:
           update-podman: "true"
           install-tools: '["just"]'
 
-      # The runner image ships /etc/containers/storage.conf pointing podman at
-      # fuse-overlayfs. This build runs as root on ext4, which supports native
-      # overlayfs, so the mount program only forces every layer diff through
-      # userspace - it cost ~27 minutes per committed layer. See docs/ci.md.
+      # Runner images have shipped /etc/containers/storage.conf pointing podman
+      # at fuse-overlayfs, which forces every layer diff through userspace - it
+      # cost ~27 minutes per committed layer. See docs/ci.md.
       - name: Use native overlayfs for podman storage
         shell: bash
         run: |
           set -euo pipefail
-          # As root on ext4 the kernel driver works, so drop the FUSE mount
-          # program; while it is set, containers/storage forces naive diff.
-          sudo sed -i -E 's@^[[:space:]]*mount_program[[:space:]]*=.*@#&@' \
-            /etc/containers/storage.conf
+          # Write the file rather than patching it. Runner image ubuntu24/
+          # 20260831.293 downgraded podman 5.8.4 -> 4.9.3, swapping the upstream
+          # build for Ubuntu's archive package, which does not ship
+          # storage.conf at all; sed then exits 2 on a missing file and takes
+          # the step with it. Declaring the whole file is also idempotent, and
+          # does not care what a future runner image does or does not ship.
+          #
+          # mount_program is absent by construction, so containers/storage uses
+          # the kernel driver. redirect_dir=off is required, not cosmetic: these
+          # runners report redirect_dir=Y, and containers/storage disables
+          # native diff whenever its probe mount shows the kernel using it.
+          # Scoping the option to podman's own mounts avoids touching the host
+          # module. The stock file's fsync=0 is deliberately not carried over -
+          # it is a fuse-overlayfs option the kernel driver rejects.
+          sudo install -d -m 0755 /etc/containers
+          sudo tee /etc/containers/storage.conf >/dev/null <<'EOF'
+          [storage]
+          driver = "overlay"
+          runroot = "/run/containers/storage"
+          graphroot = "/var/lib/containers/storage"
 
-          # This kernel reports overlay redirect_dir=Y, which containers/storage
-          # treats as disqualifying for native diff. Scoping redirect_dir=off to
-          # podman's own mounts restores it without touching the host module.
-          # The stock value's fsync=0 goes too - that is fuse-overlayfs only.
-          sudo sed -i -E 's@^[[:space:]]*#?[[:space:]]*mountopt[[:space:]]*=.*@mountopt = "nodev,redirect_dir=off"@' \
-            /etc/containers/storage.conf
-          grep -q '^mountopt' /etc/containers/storage.conf \
-            || sudo sed -i '/^\[storage.options.overlay\]/a mountopt = "nodev,redirect_dir=off"' \
-                 /etc/containers/storage.conf
+          [storage.options.overlay]
+          mountopt = "nodev,redirect_dir=off"
+          EOF
 
           # The runner ships a pre-baked ~29GB store carrying containers/storage's
           # .has-mount-program marker, which pins it to naive diff no matter what
