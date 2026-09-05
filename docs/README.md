@@ -32,6 +32,8 @@ every login, and `ujust --choose`.
 | Changed the preinstalled Flatpak list | [`flatpaks.md`](./flatpaks.md) |
 | Added a `ujust` command | [`ujust.md`](./ujust.md) |
 | Added a per-user setup hook | [`user-setup.md`](./user-setup.md) |
+| Added a systemd unit, udev rule or modprobe option | [`filesystem-layout.md`](./filesystem-layout.md) |
+| Changed when background updates run | [`filesystem-layout.md`](./filesystem-layout.md) |
 | Touched signing or key rotation | [`signing.md`](./signing.md) |
 | Changed a workflow, secret or the image name | [`ci.md`](./ci.md) |
 

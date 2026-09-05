@@ -49,7 +49,22 @@ why hooks must be defensive and non-destructive: guard every step against a
 partially-applied previous run, and never clobber existing user data on the
 assumption that this is the first run.
 
-`sivablue-user-setup` runs each hook with a plain `bash $script` and never
+Three properties guard the versioning file itself, all worth knowing before
+editing `libsetup.sh`:
+
+- The whole check-and-write runs under an exclusive `flock` on a `.lock`
+  sibling, so two setup scripts running at once cannot both read the JSON
+  before either has written back and run the same hook twice.
+- A malformed file is reset to `{}` and logged, rather than making every
+  version comparison fail silently.
+- The write is guarded. `version-script` only replaces the versioning file if
+  `jq` succeeded; on failure it returns 1, so the hook body does not run. An
+  earlier version moved the temp file unconditionally, which meant any `jq`
+  failure — a malformed file, a name containing a quote, a full disk — replaced
+  the database with an empty one, erasing every recorded version and re-running
+  every hook.
+
+`sivablue-user-setup` runs each hook with `bash "$script"` and never
 checks its exit status, so a failing hook fails silently and the loop moves
 on to the next one regardless. The hooks directory itself is overridable
 via the `user-hooks-directory` key in `/etc/sivablue/setup.json` — a file

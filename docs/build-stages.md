@@ -32,6 +32,22 @@ drifted from it and no check enforces it:
 None of that is worth a churn commit on its own, but do not copy an
 arbitrary existing stage and assume it is the house style.
 
+## After the stages: `bootc container lint`
+
+The `Containerfile` runs `bootc container lint --fatal-warnings` as its last
+step. The flag is the point: without it, lint printed warnings and the build
+carried on. Turning it on immediately caught a `dnf5.log` committed into
+`/var/log` and an `/etc/group` entry with no `sysusers.d` counterpart, both of
+which had been shipping unnoticed.
+
+Two consequences for anyone editing the build. `98-clean-stage.sh` exists in
+large part to keep the image clean enough to pass this, so weakening it will
+surface here rather than at runtime. And a package whose scriptlet creates a
+group needs a matching declaration in
+`system/usr/lib/sysusers.d/sivablue-groups.conf`, or the build fails — on a
+bootc image `/etc` is machine-local, so a group that exists only there is not
+reproducible.
+
 ## The stages
 
 Stages are documented in the order `build.sh` calls them.
@@ -96,6 +112,12 @@ installed with `rpm -qa`, because `dnf5 remove` on an absent package would
 abort under `set -e`. Nvidia variant additionally removes ROCm packages,
 which conflict with the Nvidia stack. **This is the file to edit when adding
 a Fedora package.**
+
+`steam-devices` and `openrgb-udev-rules` are here for their udev rules rather
+than any binary. `/usr` is read-only at runtime, so a user cannot drop a vendor
+rule where install scripts expect one; a Fedora package that ships the rule is
+the maintenance-free way to get it. Prefer that over vendoring rule files into
+`system/`, which nothing then keeps up to date.
 
 ### `11-ghostty.sh`
 
@@ -292,6 +314,17 @@ are disabled immediately after being added, per the usual pattern, and
 defence. Note the codec install must stay ahead of `96-overrides.sh` for that
 reason.
 
+The RPM Fusion release package is fetched with `curl` and checked with
+`rpm -qp` before installing, rather than handing `dnf5` the URL. `dnf5` caches
+a URL install under its `@commandline` repo and *appends* to an existing cache
+entry instead of truncating it; because `/var/cache` is a build cache mount,
+the file grew by one copy per build — observed at exactly one, two and three
+times the real 11753 bytes — and only parsed on the build immediately after a
+cache clear. Installing from a local path does not populate that cache at all.
+The `rpm -qp` check matters because `--nogpgcheck` is unavoidable here (the
+release package carries the key everything after it is verified with), so
+nothing else would catch a truncated or redirected download.
+
 ### `13-eddie.sh`
 
 Same `ghcurl` + version-validation pattern, but installs a standalone RPM
@@ -308,12 +341,25 @@ it out of the final image. Recompiles `/usr/share/glib-2.0/schemas` wholesale
 at the end. Must run after `system/` is mirrored, since the extensions are
 staged from there.
 
+Tags the extension tree with `setfattr -n user.component -v gnome-extensions`
+so the rechunker gives it its own OCI layer rather than grouping it with
+unrelated content, which keeps an extension bump to a small `bootc upgrade`
+delta. This is load-bearing, not decorative: the `chunka` CI action runs
+chunkah, which reads `user.component` through raw syscalls, and a podman build
+leaves the xattr physically present on the filesystem.
+
 ### `20-content-cleanup.sh`
 
 Removes `/usr/src` and `/usr/share/doc`. Erases `kernel-devel` from the
 rpmdb because its files under `/usr/src` are gone — guarded by `rpm -q`
 because it only exists on the nvidia variant and an unconditional erase would
 abort under `set -e`. Recompiles gschemas after wallpaper config changes.
+
+Also prunes `/usr/lib/modules/<kver>/` trees whose `kernel-core` is not
+installed. A `kernel-tools` bump can arrive without the matching kernel, and
+`akmods-ostree-post` iterates every entry in that directory and fails on the
+orphans. Must stay before `30-initramfs.sh`, which resolves the kernel version
+from the rpm database.
 
 ### `25-sysconfig.sh`
 
@@ -335,8 +381,14 @@ and `chmod 0600` the result. Must run after all kernel-affecting stages.
 
 ### `96-overrides.sh`
 
-Patches `uupd.service` to add `--disable-module-distrobox` so background
-updates leave Distrobox containers alone. Hides `fish`/`htop`/`nvtop` desktop
+Sets `modules.distrobox.disable` in `/etc/uupd/config.json` with `jq` so
+background updates leave Distrobox containers alone. uupd ships that file as
+`%config(noreplace)`, so this is the supported route and survives a package
+update. It replaced a `sed` on `uupd.service`, which patched an `ExecStart`
+line the unit's own comment says not to touch and would have silently mangled
+the file had upstream ever put `uupd` in `Description=`. It edits the packaged
+file rather than staging one from `system/`, because `build.sh` mirrors
+`system/` *before* packages install and the RPM would overwrite it. Hides `fish`/`htop`/`nvtop` desktop
 entries (`Hidden=true` also removes MIME associations). Adds the Flathub
 remote and disables `flatpak-add-fedora-repos.service`. **Disables
 third-party, COPR and RPM Fusion repos by filename** — this is why
@@ -352,7 +404,13 @@ runtime. Allows `fedora-updates-testing` only when `UBLUE_IMAGE_TAG=beta`.
 
 Resets `keepcache=0`, clears versionlocks, masks and deletes
 `flatpak-add-fedora-repos.service`, then empties `/var` (keeping
-`cache/libdnf5` and `cache/rpm-ostree`), `/tmp` and `/boot`.
+`cache/libdnf5` and `cache/rpm-ostree`), `/tmp`, `/boot` and `/run`.
+
+The `/run` clear tolerates failure by design. podman bind-mounts
+`.containerenv`, `secrets` and `systemd` into `/run` for the duration of the
+build `RUN`; those cannot be removed and are not part of the committed layer,
+so a plain `rm -rf /run` fails on all three and short-circuits the `mkdir`
+that would follow it.
 
 ### `99-tests.sh`
 
