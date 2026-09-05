@@ -65,7 +65,6 @@ echo ""
 echo "Checking other third-party repositories..."
 # List of known third-party repos that should be disabled
 OTHER_REPOS=(
-    "negativo17-fedora-multimedia.repo"
     "tailscale.repo"
     "vscode.repo"
     "docker-ce.repo"
