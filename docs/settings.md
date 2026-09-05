@@ -26,28 +26,28 @@ That is how `favorite-apps` and
 `org.gnome.mutter`, `org.gnome.settings-daemon.plugins.*` and
 `org.gnome.Ptyxis`.
 
-### Both extension blocks in that file are dead
+### Why the override carries no extension blocks
 
-The override also carries a block for
-`org.gnome.shell.extensions.dash-to-dock` (lines 80-94) and one for
-`org.gnome.shell.extensions.Logo-menu` (lines 96-110). Neither has any
-effect, and they are the most useful evidence this page has, because the
-failure is entirely silent.
+It used to carry two — for `org.gnome.shell.extensions.dash-to-dock` and
+`org.gnome.shell.extensions.Logo-menu` — and neither had any effect. They
+were removed; this section records why, because the failure is entirely
+silent and the mistake is easy to repeat.
 
-Vendored extensions keep their schema inside their own directory. Dash to
+A vendored extension keeps its schema inside its own directory. Dash to
 Dock's `.gschema.xml` sits in
 `system/usr/share/gnome-shell/extensions/dash-to-dock@micxgx.gmail.com/schemas/`
 and is compiled in place by `build/15-extensions.sh:12`; the same is true
 of Logo Menu (`build/15-extensions.sh:17`). Nothing moves them into
-`/usr/share/glib-2.0/schemas/`. Dash to Dock's `Makefile` does have an
-`install-local` target that would copy the schema there (line 107), but
+`/usr/share/glib-2.0/schemas/`, so an override file living there has no
+schema to attach to. Dash to Dock's `Makefile` does have an `install-local`
+target that would copy the schema across (line 107), but
 `build/15-extensions.sh` runs bare `make`, whose `all:` target is
 `extension` and never invokes `install`. Neither extension appears in
 `FEDORA_PACKAGES` either, so no package installs a schema on their behalf.
 
-Logo Menu's block additionally has the id in the wrong case — the schema
+Logo Menu's block additionally had the id in the wrong case — the schema
 declares `org.gnome.shell.extensions.logo-menu`, all lowercase, and
-GSettings ids are case-sensitive — but that is a second fault on top of a
+GSettings ids are case-sensitive — but that was a second fault on top of a
 block that could not have matched anyway.
 
 The build does not complain because the whole-directory compile
@@ -56,11 +56,12 @@ without `--strict`; an override naming an absent schema is skipped with a
 warning rather than treated as an error. Only the per-extension compiles
 use `--strict`, and they never see this file.
 
-Consequently Logo Menu's settings reach the system only through
-`system/etc/dconf/db/distro.d/03-sivablue-logomenu-extension`, and Dash to
-Dock's are not applied at all — there is no `distro.d` file for it, so the
-dock runs on upstream defaults. Neither of those blocks is worth trusting
-as a record of what the image actually does.
+So Logo Menu's settings reach the system only through
+`system/etc/dconf/db/distro.d/03-sivablue-logomenu-extension`, which is
+where they still live. Dash to Dock has no `distro.d` file, so the dock
+runs on upstream defaults — deleting its block changed nothing, it only
+stopped the file claiming otherwise. **Any future extension setting belongs
+in `distro.d/`, never here.**
 
 The filename's `zz0-` prefix orders it late among the files in
 `/usr/share/glib-2.0/schemas/` — nothing in the repository states the
