@@ -29,6 +29,11 @@ glib-compile-schemas --strict /usr/share/gnome-shell/extensions/clipboard-indica
 rm /usr/share/glib-2.0/schemas/gschemas.compiled
 glib-compile-schemas /usr/share/glib-2.0/schemas
 
+# Tag the extension tree so the rechunker gives it its own OCI layer instead of
+# grouping it with unrelated content. Updating an extension then produces a
+# small delta for `bootc upgrade` rather than rewriting a shared layer.
+setfattr -n user.component -v gnome-extensions /usr/share/gnome-shell/extensions/
+
 # Cleanup
 dnf5 -y remove glib2-devel meson sassc cmake dbus-devel
 rm -rf /usr/share/gnome-shell/extensions/tmp
