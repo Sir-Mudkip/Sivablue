@@ -1,5 +1,13 @@
 #!/usr/bin/bash
 
+# Without this, a failing stage is swallowed and the build commits a broken
+# image: every stage sets its own -e, but that only exits the stage, and this
+# script then calls the next one regardless. The ERR trap names the failure,
+# because "which of the eighteen stages died" is otherwise a log-archaeology
+# exercise.
+set -eo pipefail
+trap 'echo "::error::build.sh: stage failed at line ${LINENO}: ${BASH_COMMAND}" >&2' ERR
+
 echo "::group:: Copy Custom Files"
 
 # Mirror system tree into the image

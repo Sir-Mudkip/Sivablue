@@ -36,6 +36,14 @@ arbitrary existing stage and assume it is the house style.
 
 Stages are documented in the order `build.sh` calls them.
 
+`build.sh` sets `set -eo pipefail` and an `ERR` trap. This matters more than it
+looks: every stage sets its own `-e`, but that only exits *the stage*. Without
+`-e` here the orchestrator called the next stage regardless, so a failed
+install committed a working-looking image with the package missing, and even
+`99-tests.sh` could not fail the build. Any new stage inherits that behaviour by
+being called normally -- do not append `|| true` to a stage call without saying
+why in a comment.
+
 ### `00-image-info.sh`
 
 Writes `/usr/share/sivablue/image-info.json` and rewrites

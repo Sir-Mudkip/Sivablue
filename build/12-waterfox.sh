@@ -45,8 +45,20 @@ dnf5 -y install --enablerepo=fedora-cisco-openh264 openh264 mozilla-openh264
 # native H.264/HEVC decoders — the only ones that support VA-API hardware decode.
 # The release RPM carries the key used to verify everything after it, so it alone
 # cannot be signature-checked.
-dnf5 -y install --nogpgcheck \
+# Fetch the release RPM ourselves rather than handing dnf5 a URL. dnf5 caches a
+# URL install under its @commandline repo and *appends* to an existing cache
+# entry instead of truncating it, so the file grows by one copy per build and
+# every build after the first fails with "not a rpm". Observed sizes were exact
+# multiples of the real 11753 bytes. Since /var/cache is a build cache mount,
+# that entry survives between builds and the failure looks intermittent.
+RPMFUSION_RELEASE="/var/tmp/rpmfusion-free-release.rpm"
+curl -fsSL --retry 3 --retry-delay 2 -o "${RPMFUSION_RELEASE}" \
     "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm"
+# --nogpgcheck below means nothing else validates this file; assert it parses as
+# an RPM before installing, so a truncated or redirected download fails loudly.
+rpm -qp "${RPMFUSION_RELEASE}" >/dev/null
+dnf5 -y install --nogpgcheck "${RPMFUSION_RELEASE}"
+rm -f "${RPMFUSION_RELEASE}"
 for repo in /etc/yum.repos.d/rpmfusion-free*.repo; do
     if [[ -f "${repo}" ]]; then
         sed -i 's@^enabled=1@enabled=0@g' "${repo}"
