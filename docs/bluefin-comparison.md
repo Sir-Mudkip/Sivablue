@@ -430,7 +430,8 @@ Not gaps — the reasons this repo exists.
   demand instead. Baking it in is the right call for a workstation that always
   needs it.
 - **Docker CE alongside Podman** (`06-docker.sh`, `docker.socket` enabled).
-  Bluefin ships `containerd` but not Docker.
+  Bluefin ships `containerd` but not Docker — see below, this is less of a
+  difference than it looks.
 - **Ghostty built from source** with a pinned CPU baseline and an AVX-512
   assertion in tests. Bluefin ships Ptyxis only.
 - **Waterfox instead of Firefox**, from the BrowserWorks repo, with
@@ -448,6 +449,38 @@ Not gaps — the reasons this repo exists.
   `ripgrep`, `tmux`, `htop`, `glow`.
 
 ---
+
+### 6.1 Docker, containerd, and the `docker` group
+
+Worth setting down, because "should Sivablue use containerd like Bluefin?" is a
+question the package lists invite and the answer is not what it looks like.
+
+**Sivablue already runs containerd.** `06-docker.sh` installs `containerd.io`,
+which *is* containerd — Docker's packaging of the same daemon. Docker Engine is
+a management layer on top of it, not an alternative to it. Bluefin's
+`containerd` is Fedora's build of that same daemon, and the two cannot coexist:
+both own `/usr/bin/containerd`, `/usr/bin/ctr` and
+`/usr/bin/containerd-shim-runc-v2`.
+
+So the real choice is posture, not runtime. Bluefin keeps the Engine out of the
+image and offers Docker per-user through `ujust devmode` as a Homebrew install;
+Sivablue bakes the Engine in with `docker.socket` enabled. Sivablue's choice is
+deliberate and stays: this image is used for work that needs real Docker
+Compose, `podman-docker` is in `EXCLUDED_PACKAGES` precisely so the `docker`
+command is Docker rather than a Podman shim, and Podman remains available
+alongside for rootless work.
+
+`docker-model-plugin` was dropped from that install — it is Docker Model
+Runner, a local model manager, unrelated to running a model server such as
+Ollama in an ordinary container.
+
+**The `docker` group is root-equivalent and that is an accepted risk.** Anyone
+in it can `docker run -v /:/host` and own the machine, and `auto-groups` grants
+it to every wheel member automatically rather than making it opt-in as Bluefin
+does. This was raised and decided on 2026-09-05: the maintainer works in
+offensive security, treats the workstation as a machine whose compromise is an
+organisational event rather than a personal one, and applies operational care
+accordingly. Do not "fix" this by making the group opt-in without asking.
 
 ## 7. Settings, extensions and `ujust`
 
