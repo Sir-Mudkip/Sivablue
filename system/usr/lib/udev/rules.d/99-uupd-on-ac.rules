@@ -1,0 +1,4 @@
+# Catch up a scheduled update that uupd.service skipped on battery.
+# ACTION=="change" avoids firing during boot device enumeration.
+# ATTR{type}=="Mains" matches any AC adapter regardless of kernel name.
+ACTION=="change", SUBSYSTEM=="power_supply", ATTR{type}=="Mains", ATTR{online}=="1", RUN+="/usr/bin/systemctl start --no-block uupd-on-ac.service"

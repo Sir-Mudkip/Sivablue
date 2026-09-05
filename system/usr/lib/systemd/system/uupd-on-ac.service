@@ -1,0 +1,16 @@
+[Unit]
+Description=Trigger system updates on AC power connect
+After=network-online.target
+Wants=network-online.target
+ConditionACPower=true
+# Plugging in repeatedly must not mean updating repeatedly: at most one
+# catch-up run every six hours.
+StartLimitBurst=1
+StartLimitIntervalSec=21600
+
+[Service]
+Type=oneshot
+# Give the network a moment to come up after the AC event before uupd tries
+# to reach a registry.
+ExecStartPre=/usr/bin/sleep 60
+ExecStart=/usr/bin/systemctl start uupd.service

@@ -4,8 +4,13 @@ echo "::group:: ===$(basename "$0")==="
 
 set -eoux pipefail
 
-# Prevent Distrobox containers from being updated via the background service
-sed -i 's|uupd|& --disable-module-distrobox|' /usr/lib/systemd/system/uupd.service
+# Prevent Distrobox containers from being updated via the background service.
+# uupd ships /etc/uupd/config.json as %config(noreplace), so setting the flag
+# there is the supported route and survives a package update; the previous
+# approach patched ExecStart in a unit file whose own comment says not to.
+uupd_config=$(mktemp)
+jq '.modules.distrobox.disable = true' /etc/uupd/config.json >"${uupd_config}"
+mv "${uupd_config}" /etc/uupd/config.json
 
 # Hide Desktop Files. Hidden removes mime associations
 for file in fish htop nvtop; do
@@ -22,7 +27,7 @@ systemctl disable flatpak-add-fedora-repos.service
 # We only need to clean up repos that were enabled during the build process.
 
 # Disable third-party repos
-for repo in negativo17-fedora-multimedia tailscale fedora-cisco-openh264; do
+for repo in tailscale fedora-cisco-openh264; do
     if [[ -f "/etc/yum.repos.d/${repo}.repo" ]]; then
         sed -i 's@enabled=1@enabled=0@g' "/etc/yum.repos.d/${repo}.repo"
     fi
