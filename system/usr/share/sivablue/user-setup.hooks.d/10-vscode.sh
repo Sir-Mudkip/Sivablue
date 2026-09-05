@@ -1,8 +1,9 @@
 #!/usr/bin/bash
 
+# shellcheck source=/dev/null
 source /usr/lib/sivablue/setup-services/libsetup.sh
 
-version-script vscode user 1 || exit 1
+version-script vscode user 1 || exit 0
 
 set -x
 

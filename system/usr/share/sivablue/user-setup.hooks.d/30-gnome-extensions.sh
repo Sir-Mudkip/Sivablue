@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+# shellcheck source=/dev/null
 source /usr/lib/sivablue/setup-services/libsetup.sh
 
 version-script gnome-extensions user 1 || exit 0
