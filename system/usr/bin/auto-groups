@@ -1,30 +1,46 @@
 #!/usr/bin/env bash
 
-GROUP_SETUP_VER=1
-GROUP_SETUP_VER_FILE="/etc/sivablue/auto-groups"
-GROUP_SETUP_VER_RAN=$(cat "$GROUP_SETUP_VER_FILE" 2>/dev/null || echo "0")
+# Add every wheel member to the docker and libvirt groups.
+#
+# Runs on every boot rather than once per machine. usermod -aG is idempotent,
+# so repeating it costs nothing, whereas the previous state-file gate meant a
+# user added to wheel after first boot never got the groups -- surfacing much
+# later as an unexplained permission error with no obvious cause.
 
-mkdir -p /etc/sivablue
+set -uo pipefail
 
-if [[ -f $GROUP_SETUP_VER_FILE && "$GROUP_SETUP_VER" = "$GROUP_SETUP_VER_RAN" ]]; then
-  echo "Group setup has already run. Exiting..."
-  exit 0
-fi
-
+# Ensure a group exists. systemd-sysusers creates docker and libvirt from
+# /usr/lib/sysusers.d/sivablue-groups.conf and populates /usr/lib/group in the
+# process; the /usr/lib/group copy is the fallback for a machine whose
+# sysusers run has not happened yet.
 append_group() {
   local group_name="$1"
-  if ! grep -q "^$group_name:" /etc/group; then
-    echo "Appending $group_name to /etc/group"
-    grep "^$group_name:" /usr/lib/group | tee -a /etc/group >/dev/null
+
+  if getent group "$group_name" >/dev/null 2>&1; then
+    return 0
   fi
+
+  if grep -q "^${group_name}:" /usr/lib/group 2>/dev/null; then
+    echo "Appending ${group_name} to /etc/group"
+    grep "^${group_name}:" /usr/lib/group >>/etc/group
+    return 0
+  fi
+
+  # Previously this failed silently: the fallback read /usr/lib/group, which
+  # did not carry either group, so a missing group stayed missing and the
+  # usermod below failed with a far less obvious message.
+  echo "Group ${group_name} is missing and absent from /usr/lib/group" >&2
+  return 1
 }
 
-append_group docker
-append_group libvirt
+append_group docker || exit 1
+append_group libvirt || exit 1
 
+mapfile -t wheelarray < <(getent group wheel | cut -d ":" -f 4 | tr ',' '\n' | grep -v '^$')
 
-wheelarray=($(getent group wheel | cut -d ":" -f 4 | tr ',' '\n'))
-
+# First boot runs before any user exists. Exit non-zero so the unit's
+# Restart=on-failure brings us back in 30s, rather than declaring success and
+# never running again.
 if [[ ${#wheelarray[@]} -eq 0 ]]; then
     echo "No wheel members yet; will retry."
     exit 1
@@ -34,5 +50,4 @@ for user in "${wheelarray[@]}"; do
   usermod -aG docker,libvirt "$user"
 done
 
-echo "Writing state file"
-echo "$GROUP_SETUP_VER" >"$GROUP_SETUP_VER_FILE"
+echo "Added ${#wheelarray[@]} wheel member(s) to docker,libvirt"

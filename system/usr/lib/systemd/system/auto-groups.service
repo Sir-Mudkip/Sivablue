@@ -1,12 +1,18 @@
 [Unit]
 Description=Add wheel members to docker,libvirt groups
+# No start-rate limit: on first boot this unit retries every 30s until a user
+# exists, which can be many attempts. StartLimitIntervalSec belongs in [Unit] --
+# the old [Service] StartLimitInterval= is a deprecated alias systemd warns on.
+StartLimitIntervalSec=0
+# systemd-sysusers creates the groups this unit adds users to.
+After=systemd-sysusers.service
+Wants=systemd-sysusers.service
 
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/auto-groups
 Restart=on-failure
 RestartSec=30
-StartLimitInterval=0
 
 [Install]
 WantedBy=default.target
