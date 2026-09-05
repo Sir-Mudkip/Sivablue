@@ -17,6 +17,7 @@ every login, and `ujust --choose`.
 | [`user-setup.md`](./user-setup.md) | How per-user setup hooks run on login, and how to version one safely. |
 | [`signing.md`](./signing.md) | Why images must carry a valid cosign signature, and how to rotate the signing key. |
 | [`ci.md`](./ci.md) | What each GitHub Actions workflow does, and the conventions around secrets and the image name. |
+| [`bluefin-comparison.md`](./bluefin-comparison.md) | How Sivablue differs from upstream Bluefin, what Bluefin has changed since, and which of it is worth adopting. An analysis snapshot, not a rule page. |
 
 ## Which page do I update?
 

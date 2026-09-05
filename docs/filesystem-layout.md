@@ -96,14 +96,15 @@ Concrete examples from this image:
 These are the image's own units and scripts, as opposed to the packaged
 ones (`podman.socket`, `docker.socket`, `libvirtd`, `brew-setup.service`,
 `uupd.timer`, `rpm-ostree-countme.timer`) that `build/25-sysconfig.sh`
-enables alongside them. All seven units are enabled there; see
-`build-stages.md`.
+enables alongside them. All seven of the units in the table below are enabled
+there; see `build-stages.md`. `uupd-on-ac.service` is the exception — it is
+started by a udev rule rather than enabled, so it is listed separately.
 
 `system/usr/lib/systemd/system/`:
 
 | Unit | Does |
 |---|---|
-| `auto-groups.service` | Oneshot on `default.target` running `/usr/bin/auto-groups`; `Restart=on-failure` every 30s with no start limit, so it retries until a wheel user exists. |
+| `auto-groups.service` | Oneshot on `default.target` running `/usr/bin/auto-groups`; `Restart=on-failure` every 30s with `StartLimitIntervalSec=0`, so it retries until a wheel user exists. Ordered after `systemd-sysusers.service`, which creates the groups. |
 | `dconf-update.service` | Runs `dconf update` at boot, compiling `/etc/dconf/db/distro.d/` into the binary database clients read (see `settings.md`). |
 | `flatpak-nuke-fedora.service` | Deletes the `fedora` and `fedora-testing` Flatpak remotes and touches `/var/lib/flatpak/.fedora-initialized`; ordered before `flatpak-preinstall.service` so preinstalls resolve against Flathub. |
 | `libvirt-workaround.service` | `restorecon -R` over `/var/log/libvirt/` and `/var/lib/libvirt/` to repair SELinux labels; both `ExecStart=` lines are `-`-prefixed, so failures do not fail the unit. |
@@ -111,11 +112,38 @@ enables alongside them. All seven units are enabled there; see
 | `swtpm-workaround.service` | Copies `/usr/bin/swtpm` into `/usr/local/bin/overrides` and bind-mounts it back over itself so `restorecon` can label it — `/usr` is read-only, so it cannot be relabelled in place. |
 | `tailscale-operator.service` | `WantedBy=tailscaled.service`; runs `tailscale-operator-setup` once Tailscale is up. |
 
+### Hardware enablement: `usr/lib/modprobe.d/`
+
+| File | Does |
+|---|---|
+| `fw-charge-control.conf` | Sets `probe_with_fwk_charge_control=1` on `cros_charge_control` so the in-tree driver binds on Framework laptops, which is what creates the `charge_control_end_threshold` sysfs node battery charge limiting reads. Inert elsewhere — the module only loads where it binds. Asserted in `build/99-tests.sh`. |
+
+Kernel module options belong here rather than `/etc/modprobe.d/`: `/etc` is the
+administrator's, and this is the image's own hardware enablement. It needs no
+initramfs regeneration, since `cros_charge_control` is a runtime power-supply
+driver rather than something dracut pulls in.
+
+### Update policy: `uupd` only on AC
+
+Three files decide when background image updates run, and none of them is
+enabled by `25-sysconfig.sh`:
+
+| Path | Does |
+|---|---|
+| `usr/lib/systemd/system/uupd.service.d/10-sivablue.conf` | Adds `ConditionACPower=true`, so the scheduled run is skipped on battery. systemd treats the condition as met when the machine has no AC connector at all, so a desktop is unaffected. |
+| `usr/lib/systemd/system/uupd-on-ac.service` | Oneshot that waits 60s for the network then starts `uupd.service`, catching up the skipped run. Rate-limited to once per six hours (`StartLimitBurst=1`, `StartLimitIntervalSec=21600`) so repeated plugging in does not mean repeated updating. Not enabled — started on demand. |
+| `usr/lib/udev/rules.d/99-uupd-on-ac.rules` | Starts the above when a `Mains` supply comes online. `ACTION=="change"` keeps it from firing during boot device enumeration. |
+
+`build/99-tests.sh` asserts all three, because they are staged from `system/`
+and `rpm -q` vouches for none of them. Losing the drop-in silently means a
+laptop updates on battery; losing either of the other two silently means the
+skipped run is never caught up.
+
 `system/usr/bin/`:
 
 | Binary | Does |
 |---|---|
-| `auto-groups` | Appends the `docker` and `libvirt` groups from `/usr/lib/group` to `/etc/group`, then adds every wheel member to both; exits 1 when wheel is still empty so the unit retries. Version-stamped in `/etc/sivablue/auto-groups`. |
+| `auto-groups` | Adds every wheel member to the `docker` and `libvirt` groups, creating either group from `/usr/lib/group` first if `systemd-sysusers` has not yet. Exits 1 when wheel is still empty so the unit retries. Runs on **every** boot: `usermod -aG` is idempotent, and the state file it used to write meant a user added to wheel later never got the groups. |
 | `sivablue-motd` | Renders the MOTD with `glow`, wrapped to `tput cols` when on a terminal; silently exits if `glow` or the template is missing. |
 | `sivablue-user-setup` | Runs every hook in the user hooks directory; see `user-setup.md`. |
 | `tailscale-operator-setup` | Sets the Tailscale operator to the first wheel user, so `tailscale` works without `sudo`. Version-stamped in `/etc/sivablue/tailscale-operator`. |
