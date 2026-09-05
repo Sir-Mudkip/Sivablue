@@ -45,6 +45,7 @@ FEDORA_PACKAGES=(
     lm_sensors
     make
     openssl
+    openrgb-udev-rules
     nvme-cli
     nvtop
     podman-compose
@@ -63,6 +64,7 @@ FEDORA_PACKAGES=(
     qemu-user-binfmt
     qemu-user-static
     ripgrep
+    steam-devices
     swtpm-tools
     tmux
     virt-manager

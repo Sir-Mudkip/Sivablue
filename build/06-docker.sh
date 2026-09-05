@@ -22,7 +22,6 @@ dnf5 -y install --enablerepo=docker-ce-stable \
     docker-buildx-plugin \
     docker-ce \
     docker-ce-cli \
-    docker-compose-plugin \
-    docker-model-plugin
+    docker-compose-plugin
 
 echo "::endgroup::"
