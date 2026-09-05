@@ -433,14 +433,35 @@ spawn-vm rebuild="0" type="qcow2" ram="6G":
 # Runs shell check on all Bash scripts
 lint:
     #!/usr/bin/env bash
-    set -eoux pipefail
+    set -eou pipefail
     # Check if shellcheck is installed
     if ! command -v shellcheck &> /dev/null; then
         echo "shellcheck could not be found. Please install it."
         exit 1
     fi
-    # Run shellcheck on all Bash scripts
-    /usr/bin/find . -iname "*.sh" -type f -exec shellcheck "{}" ';'
+    # git ls-files lists only tracked paths, so vendored submodules (whose
+    # contents belong to the superproject as a gitlink, not as files) are
+    # excluded and upstream extension code is never reported as ours.
+    # Extensionless scripts are matched by shebang: ujust, sivablue-motd and
+    # friends carry no .sh suffix and went unchecked for a long time.
+    mapfile -t scripts < <(
+        git ls-files | while read -r f; do
+            [ -f "$f" ] || continue
+            case "$f" in
+                *.sh) echo "$f" ;;
+                *) head -c2 "$f" 2>/dev/null | grep -q '#!' && echo "$f" ;;
+            esac
+        done
+    )
+    if [ "${#scripts[@]}" -eq 0 ]; then
+        echo "No shell scripts found to lint."
+        exit 1
+    fi
+    echo "Linting ${#scripts[@]} shell scripts..."
+    # One invocation, so a finding in any file fails the recipe. The previous
+    # find -exec form could not fail: find does not propagate the exit status
+    # of -exec, so shellcheck's findings were printed and then discarded.
+    shellcheck "${scripts[@]}"
 
 # Runs shfmt on all Bash scripts
 format:
@@ -448,7 +469,7 @@ format:
     set -eoux pipefail
     # Check if shfmt is installed
     if ! command -v shfmt &> /dev/null; then
-        echo "shellcheck could not be found. Please install it."
+        echo "shfmt could not be found. Please install it."
         exit 1
     fi
     # Run shfmt on all Bash scripts

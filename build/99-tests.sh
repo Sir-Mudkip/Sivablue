@@ -19,7 +19,7 @@ echo "${KEY1_SHA256}  ${KEY1}" | sha256sum -c -
 echo "${BACKUP_KEY_SHA256}  ${BACKUP_KEY}" | sha256sum -c -
 
 for i in bin/ujust share/sivablue/just/{apps.just,system.just,utils.just,fetch.just,utils.just,entry.just} ; do
-   stat /usr/$i
+   stat /usr/"$i"
 done
 
 # rpm -q vouches for the package itself (see IMPORTANT_PACKAGES); these check
@@ -80,6 +80,35 @@ test -f /etc/fastfetch/config.jsonc
 # The logo is a pre-rendered coloured-braille text file printed via file-raw (no
 # image libraries involved); this is the actual asset the config renders.
 test -f /usr/share/fastfetch/logos/sivablue.txt
+
+# uupd is configured to skip scheduled runs on battery, with a udev-triggered
+# catch-up on AC connect. All three pieces are staged from system/, so rpm -q
+# vouches for none of them, and losing any one silently changes update policy:
+# without the drop-in a laptop updates on battery, without the rule or the unit
+# it never catches up the run it skipped.
+test -f /usr/lib/systemd/system/uupd.service.d/10-sivablue.conf
+grep -q '^ConditionACPower=true$' /usr/lib/systemd/system/uupd.service.d/10-sivablue.conf
+test -f /usr/lib/systemd/system/uupd-on-ac.service
+test -f /usr/lib/udev/rules.d/99-uupd-on-ac.rules
+grep -q 'uupd-on-ac.service' /usr/lib/udev/rules.d/99-uupd-on-ac.rules
+
+# 96-overrides.sh disables uupd's distrobox module through the config file the
+# package ships. rpm -q proves uupd is installed but says nothing about the
+# setting, and a silent regression means background updates start churning
+# through every Distrobox container.
+test "$(jq -r '.modules.distrobox.disable' /etc/uupd/config.json)" = "true"
+
+# Declares the docker and libvirt groups for systemd-sysusers. Staged from
+# system/, and without it `bootc container lint --fatal-warnings` fails the
+# build on an /etc/group entry with no sysusers.d counterpart.
+test -f /usr/lib/sysusers.d/sivablue-groups.conf
+grep -q '^g docker -$' /usr/lib/sysusers.d/sivablue-groups.conf
+
+# Framework battery charge limiting depends on this modprobe option; it is
+# staged from system/, so rpm -q cannot vouch for it, and losing it means the
+# charge_control_end_threshold sysfs node never appears.
+test -f /usr/lib/modprobe.d/fw-charge-control.conf
+grep -q '^options cros_charge_control probe_with_fwk_charge_control=1$' /usr/lib/modprobe.d/fw-charge-control.conf
 
 # If this file is not on the image bazaar will automatically be removed from users systems :(
 # See: https://docs.flatpak.org/en/latest/flatpak-command-reference.html#flatpak-preinstall

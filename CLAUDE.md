@@ -105,14 +105,14 @@ Writing a new recipe: [`docs/ujust.md`](docs/ujust.md).
 ## Validation
 
 ```bash
-just lint      # shellcheck across all *.sh
+just lint      # shellcheck across every tracked shell script
 just check     # just/Justfile syntax
 just format    # shfmt
 just build     # full image build
 ```
 
-- `just lint` recurses into vendored submodules and reports on upstream code (e.g. gradia's `build.sh`) — those failures are not yours.
-- The `build-qcow2` / `build-iso` / `run-vm-*` recipes reference an `iso/` directory that does not exist in this repo; they will fail until it is added.
+- `just lint` covers every tracked script — `*.sh` plus extensionless ones matched by shebang (`ujust`, `sivablue-motd`, `ghcurl`…). It lists files with `git ls-files`, so vendored submodules are excluded and upstream code is never reported as yours. It fails the recipe on any finding, so a new script must be clean before it lands.
+- `iso/disk.toml` is tracked, so `build-qcow2`, `build-raw` and `run-vm-qcow2` work. `iso/iso.toml` is not, so `build-iso` / `rebuild-iso` fail — installable ISOs are built in [`Sir-Mudkip/Sivablue-iso`](https://github.com/Sir-Mudkip/Sivablue-iso), not here.
 - Only a full `just build` proves a build stage works. Linting a script is not the same as running it.
 
 ## Conventions
