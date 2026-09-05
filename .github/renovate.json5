@@ -5,6 +5,13 @@
   "prConcurrentLimit": 20,
   "recreateWhen": "always",
   "rebaseWhen": "auto",
+  // Extensions are vendored as git submodules. Renovate's submodule manager is
+  // off by default, which left them frozen at whatever commit was last committed
+  // by hand. Enabled (but never automerged) so bumps arrive as reviewable PRs --
+  // a GNOME extension can break on a shell update, so these want eyes.
+  "git-submodules": {
+    "enabled": true
+  },
   "customManagers": [
     {
       "customType": "regex",
