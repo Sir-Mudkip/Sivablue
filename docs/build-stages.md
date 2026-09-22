@@ -113,11 +113,35 @@ abort under `set -e`. Nvidia variant additionally removes ROCm packages,
 which conflict with the Nvidia stack. **This is the file to edit when adding
 a Fedora package.**
 
-`steam-devices` and `openrgb-udev-rules` are here for their udev rules rather
-than any binary. `/usr` is read-only at runtime, so a user cannot drop a vendor
-rule where install scripts expect one; a Fedora package that ships the rule is
-the maintenance-free way to get it. Prefer that over vendoring rule files into
-`system/`, which nothing then keeps up to date.
+`steam-devices` is here for its udev rules rather than any binary. `/usr` is
+read-only at runtime, so a user cannot drop a vendor rule where install scripts
+expect one; a Fedora package that ships the rule is the maintenance-free way to
+get it. Prefer that over vendoring rule files into `system/`, which nothing then
+keeps up to date. `openrgb-udev-rules` was dropped: its rules tag every I²C bus
+`uaccess`, giving any process in the desktop session raw SMBus access, which is
+not worth it for RGB control nobody here uses.
+
+#### Virtualization: `@virtualization`, not `qemu`
+
+Fedora's `qemu` package is a metapackage that pulls in every `qemu-system-*`
+architecture (MIPS, PPC, s390x, RISC-V…) plus their firmware — roughly 750 MB
+installed that an x86 laptop never boots. The `@virtualization` group installs
+`qemu-kvm` (x86 only, with the SPICE/virtio/USB-redirect device modules and
+`edk2-ovmf`), libvirt's KVM daemon and default network, `virt-install`,
+`virt-manager` and `virt-viewer`. `qemu-system-aarch64` is added back on its own
+for ARM guests; most of its ~330 MB is the `edk2-aarch64` firmware it requires.
+
+`qemu-user-static` stays for running foreign-architecture binaries and
+containers (firmware analysis, `--platform linux/arm64`). Each of its
+per-architecture packages ships its own `binfmt.d` entries with the `F` flag, so
+`qemu-user-binfmt` — and the 240 MB dynamic `qemu-user` it drags in — is a
+redundant second copy and is not installed. `99-tests.sh` lists a few
+non-x86 system emulators and `qemu-user` as unwanted so the metapackage cannot
+creep back in as a dependency.
+
+`python3-boto3`, `-botocore` and `-s3transfer` (~126 MB) arrive with the
+Silverblue base image and nothing depends on them, so they sit in
+`EXCLUDED_PACKAGES`.
 
 ### `11-ghostty.sh`
 

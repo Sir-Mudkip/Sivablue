@@ -21,6 +21,7 @@ echo "::group:: ===$(basename "$0")==="
 echo "Main Packages"
 
 FEDORA_PACKAGES=(
+    @virtualization
     adwaita-fonts-all
     adw-gtk3-theme
     bash-color-prompt
@@ -45,7 +46,6 @@ FEDORA_PACKAGES=(
     lm_sensors
     make
     openssl
-    openrgb-udev-rules
     nvme-cli
     nvtop
     podman-compose
@@ -54,22 +54,14 @@ FEDORA_PACKAGES=(
     p7zip
     p7zip-plugins
     pipx
-    qemu
-    qemu-char-spice
-    qemu-device-display-virtio-gpu
-    qemu-device-display-virtio-vga
-    qemu-device-usb-redirect
     qemu-img
-    qemu-system-x86-core
-    qemu-user-binfmt
+    qemu-system-aarch64
     qemu-user-static
     ripgrep
     steam-devices
     swtpm-tools
     tmux
-    virt-manager
     virt-v2v
-    virt-viewer
     wireguard-tools
     wl-clipboard
 )
@@ -106,6 +98,9 @@ EXCLUDED_PACKAGES=(
     iptables-utils
     PackageKit-command-not-found
     podman-docker
+    python3-boto3
+    python3-botocore
+    python3-s3transfer
     rsyslog
 )
 

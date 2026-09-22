@@ -641,7 +641,7 @@ has the detail); they are kept here so the reasoning stays with the list.
 | 6 ✅ | **Widen `just lint` to extensionless scripts** (`ujust`, `sivablue-motd`, `auto-groups`, `sivablue-user-setup`, `tailscale-operator-setup`) | Trivial | Five scripts are currently unlinted |
 | 7 ✅ | **`--fatal-warnings` lint** plus a tolerant `/run` clear in `98-clean-stage.sh` | Trivial | Caught three real warnings on the first run: a stray `dnf5.log` and an undeclared `docker` group |
 | 8 ✅ | **Move uupd's distrobox opt-out to `/etc/uupd/config.json`** instead of `sed`ing the unit | Trivial | Supported route; survives package updates |
-| 9 ✅ | **udev rules** — resolved as two Fedora packages (`steam-devices`, `openrgb-udev-rules`); the rest investigated and not vendored (§4.1) | Small | Controller and RGB support; hardware-specific rules deliberately skipped |
+| 9 ✅ | **udev rules** — resolved as the `steam-devices` Fedora package (`openrgb-udev-rules` was added, then dropped: see `build-stages.md`); the rest investigated and not vendored (§4.1) | Small | Controller support; hardware-specific rules deliberately skipped |
 | 10 ✅ | **Pin `ublue-os/brew` by digest**, Renovate-bumped. Base image deliberately *not* pinned — §1 | Small | `:latest` has no version anchor and changed silently; `:44` already anchors the Fedora release |
 | 11 ✅ | **Orphan `/usr/lib/modules/` pruning** before initramfs | Small | Prevents a known akmods failure on the nvidia variant |
 | 12 ❌ | **`rechunker-group-fix`** — investigated and rejected (§4.3): the bug is specific to `legacy-rechunk`, and Sivablue's CI runs chunkah | — | — |

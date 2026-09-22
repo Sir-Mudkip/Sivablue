@@ -135,6 +135,11 @@ IMPORTANT_PACKAGES=(
     uupd
     eddie-ui
     waterfox
+    libvirt
+    qemu-kvm
+    qemu-system-aarch64
+    qemu-user-static
+    virt-manager
 )
 
 for package in "${IMPORTANT_PACKAGES[@]}"; do
@@ -148,7 +153,13 @@ UNWANTED_PACKAGES=(
     gnome-software
     gnome-software-rpm-ostree
     noopenh264
+    openrgb-udev-rules
     podman-docker
+    python3-boto3
+    qemu-system-mips-core
+    qemu-system-ppc-core
+    qemu-user
+    qemu-user-binfmt
 )
 
 for package in "${UNWANTED_PACKAGES[@]}"; do
