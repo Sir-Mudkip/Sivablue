@@ -24,3 +24,5 @@ See [`docs/README.md`](docs/README.md) for build and design documentation.
 This will boot you into a Live ISO session which will take you through the installation journey so just follow along. The live ISO will install most of the flatpaks at the point of build, but some will be missing on first boot. These will install in the background so please be patient in waiting for them.
 
 If you don't want to use the live ISOs and want to use a non-live anaconda iso, then clone the [ISO repository](https://github.com/Sir-Mudkip/Sivablue-iso) and run `./hack/non-live-iso-build.sh`. Run `./hack/non-live-iso-build.sh nvidia` if you want to build the nvidia flavour.
+
+Credit to (Netherdawn)[https://vgen.co/Netherdawn] for designing the SIVA themed ghosts.
