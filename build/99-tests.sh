@@ -123,6 +123,9 @@ test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 # Gradia Capture comes from the Sir-Mudkip fork; the censor tool proves it.
 grep -q "id: 'censor'" /usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.github.io/tools.js
 
+# Ghost avatars for the GNOME user picker (must be flat: the picker does not recurse).
+test "$(compgen -G '/usr/share/pixmaps/faces/sivablue-ghost-*.png' | wc -l)" -eq 9
+
 IMPORTANT_PACKAGES=(
     distrobox
     flatpak

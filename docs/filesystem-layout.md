@@ -192,3 +192,14 @@ rm -f "$png"
 `build/99-tests.sh` checks `/etc/fastfetch/config.jsonc` and
 `/usr/share/fastfetch/logos/sivablue.txt` exist, since they are staged
 from `system/` and `rpm -q` cannot vouch for them.
+
+### User avatars
+
+The Sivablue "Ghost" avatars live in `system/usr/share/pixmaps/faces/` as
+`sivablue-ghost-*.png`, alongside Fedora's stock faces. GNOME Settings and
+gnome-initial-setup list `$XDG_DATA_DIRS/pixmaps/faces/` and skip anything
+that is not a regular file or symlink (`cc-avatar-chooser.c`,
+`add_faces_from_dirs`), so the files must sit **directly** in `faces/` — a
+`faces/sivablue/` subdirectory is never shown. The `sivablue-` prefix keeps
+them clear of Fedora's file names. `build/99-tests.sh` asserts all nine are
+present in the image.
