@@ -114,26 +114,46 @@ surface's pixel space). Other tools ignore them.
 - **Preview** (`DrawingCanvas.vfunc_repaint`): `source` is a snapshot of
   `Main.screenshotUI._stageScreenshot` (frozen full stage, physical pixels),
   obtained via `Shell.Screenshot.composite_to_stream` — the call the extension
-  already uses. `sourcePoints = stagePoints × ui._scale`.
+  already uses. `sourcePoints = stagePoints × (snapshotWidth /
+  global.stage.width)` — derived from the snapshot itself rather than
+  `ui._scale`, so it holds under fractional and mixed-DPI scaling.
 - Snapshot taken lazily when the censor tool is first selected in a screenshot
   session, cached, and released when the screenshot UI closes. Until it is
   ready, a censor stroke renders as a hatched placeholder; drawing never
   blocks.
 
-**Every output path must carry the censored pixels.** Save to disk, copy to
-clipboard, "Save as", and hand-off to the Gradia app must all go through the
-composited result. Implementation traces each path and fixes any that bypass
-`_compositeStrokesOntoPixbuf`.
+**Every output path must carry the censored pixels.** Traced during planning
+(upstream `f70a212`): save to disk, copy to clipboard, "Save as" (portal),
+OCR, the toast thumbnail, and the toast's "edit in Gradia" button (which opens
+the saved file) all consume the result of `compositeFn` in
+`captureAndStoreScreenshot`. No path bypasses it; the plan keeps it that way
+and verifies it live.
 
-**Known limitation:** in window-capture mode the preview samples the on-screen
-stage while export uses the window's own texture; with an overlapping window
-the pixels under the blocks can differ between preview and export. Export is
-still correctly pixelated.
+**Fail-safe:** if a censor stroke is ever rendered without `source` (snapshot
+not ready in preview, or a future code path forgetting to supply it), it
+paints an **opaque** hatched box — it never draws nothing.
+
+**Off-image rectangles:** a censor rectangle extending past the source image
+is clamped to the image bounds (as Gradia does); the in-bounds part is
+pixelated and nothing outside the image is sampled.
+
+**Window mode (corrected):** upstream hides the toolbar and all canvases in
+window-capture mode and passes no `compositeFn` there, so *no* annotation —
+censor included — is shown or applied in window mode. What you see (no
+annotations) is what you get. Censor regions drawn in area or screen mode do
+**not** carry over into a window-mode capture; this is upstream behaviour,
+left as is and called out in the live checklist.
+
+**Controls:** tools gain an optional `hasStyle` flag; `censor` sets
+`hasStyle: false` and `Toolbar._updateDrawingControlsSensitivity` treats such
+a tool as not using colour or width.
 
 ## Part 3 — Testing and verification
 
-**Unit tests (TDD, written first):** `tests/pixelate.test.js` in the fork, run
-with `gjs -m tests/pixelate.test.js`; outside `src/`, so never packed.
+**Unit tests (TDD, written first):** `tests/pixelate.test.js` and
+`tests/tools.test.js` in the fork, run by `tests/run.sh` (plain `gjs -m`, with
+`GI_TYPELIB_PATH` pointed at mutter's typelibs so `tools.js` can import
+Clutter); outside `src/`, so never packed.
 
 1. Detail destroyed: random-noise source; every 8×8 block inside the
    rectangle is a single colour.
