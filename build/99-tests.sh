@@ -120,6 +120,9 @@ flatpak preinstall --help
 # Make sure this garbage nerer makes it to an image
 test -f /usr/lib/systemd/system/flatpak-add-fedora-repos.service && false
 
+# Gradia Capture comes from the Sir-Mudkip fork; the censor tool proves it.
+grep -q "id: 'censor'" /usr/share/gnome-shell/extensions/gradia-integration@alexandervanhee.github.io/tools.js
+
 IMPORTANT_PACKAGES=(
     distrobox
     flatpak

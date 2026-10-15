@@ -17,7 +17,7 @@ that were never fetched.
 |---|---|
 | `dash-to-dock@micxgx.gmail.com` | [micheleg/dash-to-dock](https://github.com/micheleg/dash-to-dock) |
 | `logomenu@aryan_k` | [ublue-os/Logomenu](https://github.com/ublue-os/Logomenu) |
-| `gradia-integration@alexandervanhee.github.io` | [AlexanderVanhee/gradia-capture](https://github.com/AlexanderVanhee/gradia-capture) |
+| `gradia-integration@alexandervanhee.github.io` | [Sir-Mudkip/gradia-capture](https://github.com/Sir-Mudkip/gradia-capture) (hard fork of [AlexanderVanhee/gradia-capture](https://github.com/AlexanderVanhee/gradia-capture)) |
 | `clipboard-indicator@tudmotu.com` | [Tudmotu/gnome-shell-extension-clipboard-indicator](https://github.com/Tudmotu/gnome-shell-extension-clipboard-indicator) |
 
 (Source: `.gitmodules`.)
@@ -53,6 +53,25 @@ already compiled in its own `schemas/` directory and stay there, while
 the override file cannot set an extension's defaults — see `settings.md`.
 `build/20-content-cleanup.sh` repeats the whole-directory recompile later in
 the build, after cleanup steps that also touch that directory.
+
+## Gradia Capture is a fork
+
+Upstream Gradia Capture has no way to obscure a region except an opaque box.
+The fork adds a **Censor** tool that pixelates a dragged rectangle in 8 px
+blocks, ported from the Gradia app's own censor tool, so the result is
+irreversible once saved. It is a hard fork: its `master` is the source of
+truth and keeps the upstream UUID, so `enabled-extensions` and users'
+settings carry over. `build/99-tests.sh` greps the installed `tools.js` for
+the censor tool so the submodule cannot silently revert to upstream.
+
+To take upstream changes:
+
+    cd ~/projects/gradia-capture
+    git fetch upstream && git merge upstream/master
+    tests/run.sh && git push origin master
+
+Renovate then opens the submodule bump PR here. Design:
+`docs/superpowers/specs/2026-10-15-gradia-censor-tool-design.md`.
 
 ## Enabling
 
