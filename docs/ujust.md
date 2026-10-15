@@ -81,3 +81,22 @@ At runtime, a recipe may install software through channels designed for
 it: Flatpaks (`flatpak install`), Homebrew (`brew install`), or a
 distrobox/toolbox container. See `apps.just`'s `install-flatpak` and
 `install-vscodium` recipes for the pattern.
+
+A fourth channel is a vendor's own installer, run as the user into
+`$HOME`. `install-burpsuite` is the example, and it shows the rules:
+
+- **Resolve the version, then verify it.** The recipe reads PortSwigger's
+  release feed for the newest `desktop` build on the chosen channel and
+  checks the download's SHA256 against the checksum in that same feed.
+  The unversioned "latest" download links are not used: in October 2026
+  they still served 2026.3.3, six releases stale.
+- **One installer, two editions.** Since the 2026 releases PortSwigger
+  ships a single Linux "Burp Suite Desktop" installer; the versioned
+  `product=community` / `product=pro` URLs 404. Community vs Pro is decided
+  by licence at first launch, so the recipe's `gum` choice is the release
+  channel (Stable / Early Adopter), not the edition.
+- **Download to `~/.cache`, never `/tmp`.** The installer is ~400 MB and
+  `/tmp` is RAM. A `trap` removes the download however the recipe exits.
+- **Self-updates work.** Unlike software in `/usr`, an install in `$HOME`
+  is writable, so Burp's own updater keeps it current; the recipe is for
+  first install (or reinstall), not for updates.
